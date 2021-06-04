@@ -49,6 +49,7 @@
 //#include <Wire.h>
 //#include <I2CEEProm.h>
 
+#define DBGSerial Serial
 // Only compile in Debug code if we have something to output to
 #ifdef DBGSerial
 #define DEBUG
@@ -512,7 +513,7 @@ void setup() {
 
     // Debugger will use second USB Serial; this line is not need if using menu option
 #ifdef USE_TEENSY_DEBUG
-    debug.begin(SerialUSB1);
+    DBGSerial.begin(SerialUSB1);
 #endif
 #endif
 

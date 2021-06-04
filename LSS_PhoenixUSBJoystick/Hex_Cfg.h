@@ -59,12 +59,17 @@ extern ST7789_t3 tft;
 //#define cFemurHornOffset1 -35
 //#define cTibiaHornOffset1 463
 // Coxa may be reversed from default
-#define cRRCoxaInv 1 
-#define cRMCoxaInv 1 
+#define cRRCoxaInv 1
+#define cRRFemurInv 1
+#define cRRTibiaInv 1
+
+#define cRMCoxaInv 1
+#define cRMFemurInv 1
+#define cRMTibiaInv 1
+
 #define cRFCoxaInv 1 
-#define cLRCoxaInv 1 
-#define cLMCoxaInv 1 
-#define cLFCoxaInv 1 
+#define cRFFemurInv 1 
+#define cRFTibiaInv 1
 
 /* I think femur directions are same as default
 #define cRRFemurInv 1 
@@ -329,10 +334,11 @@ extern ST7789_t3 tft;
 #define cLFOffsetZ      -89    //Distance Z from center of the body to the Left Front coxa
 //--------------------------------------------------------------------
 //[START POSITIONS FEET]
-#define cHexInitXZ	 155
+#define cHexInitXZ   147
 #define CHexInitXZCos60  104        // COS(45) = .707
 #define CHexInitXZSin60  104    // sin(45) = .707
-#define CHexInitY	 25 //30
+#define CHexInitY  25 //30
+
 
 // Lets try some multi leg positions depending on height settings.
 #define CNT_HEX_INITS 2
