@@ -123,6 +123,7 @@ extern ST7789_t3 tft;
 
 #define OPT_SINGLELEG      
 
+#define DEFINE_HEX_GLOBALS
 //==================================================================================================================================
 //==================================================================================================================================
 //==================================================================================================================================
@@ -304,12 +305,12 @@ extern ST7789_t3 tft;
 
 //--------------------------------------------------------------------
 //[BODY DIMENSIONS]
-#define cRRCoxaAngle1   -340   //Default Coxa setup angle, 34.280877 degs from center line? atan-1(60.6/88.9)
+#define cRRCoxaAngle1   -560   //Default Coxa setup angle, 34.280877 degs from center line? atan-1(60.6/88.9)
 #define cRMCoxaAngle1    0      //Default Coxa setup angle
-#define cRFCoxaAngle1    340      //Default Coxa setup angle
-#define cLRCoxaAngle1    -340   //Default Coxa setup angle
+#define cRFCoxaAngle1    560      //Default Coxa setup angle
+#define cLRCoxaAngle1    -560   //Default Coxa setup angle
 #define cLMCoxaAngle1    0      //Default Coxa setup angle
-#define cLFCoxaAngle1    340     //Default Coxa setup angle
+#define cLFCoxaAngle1    560     //Default Coxa setup angle
 
 #define X_COXA      89  // MM between front and back legs /2  ???????????
 #define Y_COXA      89  // MM between front/back legs /2   ????????????????????????????
@@ -334,15 +335,15 @@ extern ST7789_t3 tft;
 #define cLFOffsetZ      -89    //Distance Z from center of the body to the Left Front coxa
 //--------------------------------------------------------------------
 //[START POSITIONS FEET]
-#define cHexInitXZ   147
-#define CHexInitXZCos60  104        // COS(45) = .707
-#define CHexInitXZSin60  104    // sin(45) = .707
-#define CHexInitY  25 //30
+#define cHexInitXZ   239
+#define CHexInitXZCos60  134    // COS(56) = .707
+#define CHexInitXZSin60  198    // sin(56) = .707
+#define CHexInitY  116 //30
 
 
 // Lets try some multi leg positions depending on height settings.
 #define CNT_HEX_INITS 2
-#define MAX_BODY_Y  150
+#define MAX_BODY_Y  120
 #ifdef DEFINE_HEX_GLOBALS
 const byte g_abHexIntXZ[] PROGMEM = {cHexInitXZ, 144};
 const byte g_abHexMaxBodyY[] PROGMEM = { 20, MAX_BODY_Y};
@@ -355,7 +356,7 @@ extern const byte g_abHexMaxBodyY[] PROGMEM;
 #define cRRInitPosY     CHexInitY
 #define cRRInitPosZ     CHexInitXZSin60
 
-#define cRMInitPosX     cHexInitXZ      //Start positions of the Right Middle leg
+#define cRMInitPosX     cHexInitXZ			//Start positions of the Right Middle leg
 #define cRMInitPosY     CHexInitY
 #define cRMInitPosZ     0
 
