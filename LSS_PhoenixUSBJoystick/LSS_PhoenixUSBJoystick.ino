@@ -701,6 +701,7 @@ void loop(void)
             LegPosY[LegIndex] + g_InControlState.BodyPos.y - BodyFKPosY + GaitPosY[LegIndex] - TotalTransY,
             LegPosZ[LegIndex] + g_InControlState.BodyPos.z - BodyFKPosZ + GaitPosZ[LegIndex] - TotalTransZ, LegIndex);
     }
+	
     //Check mechanical limits
     CheckAngles();
 
