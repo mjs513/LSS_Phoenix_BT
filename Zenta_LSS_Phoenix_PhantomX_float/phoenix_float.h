@@ -87,7 +87,7 @@ extern float SmoothControl (short CtrlMoveInp, float CtrlMoveOut, byte CtrlDivid
 extern boolean          g_fDebugOutput;
 extern boolean          g_fEnableServos;      // Hack to allow me to turn servo processing off...
 extern boolean          g_fRobotUpsideDown;    // Is the robot upside down?
-extern boolean					g_WakeUpState;					//True if the robot has just been turned on, starting with reduced torque etc.
+extern boolean			g_WakeUpState;					//True if the robot has just been turned on, starting with reduced torque etc.
 extern boolean					g_InhibitMovement;		//Set true for temporarily inhibit the controller input e.g when the robot is placed on the ground we don't want to move or walk	
 extern void MSound(byte cNotes, ...);
 extern boolean CheckVoltage(void);
@@ -152,7 +152,7 @@ public:
   virtual void     Init(void);
   virtual void     ControlInput(void);
   virtual void     AllowControllerInterrupts(boolean fAllow);
-	virtual void		 SendMsgs(byte Voltage, byte CMD, char Data[21]);
+  virtual void		SendMsgs(byte Voltage, byte CMD, char Data[21]);
 
 #ifdef OPT_TERMINAL_MONITOR_IC  // Allow Input controller to define stuff as well
   virtual void            ShowTerminalCommandList(void);

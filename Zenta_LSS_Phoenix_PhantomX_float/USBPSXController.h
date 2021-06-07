@@ -35,6 +35,7 @@
 #  endif
 #endif
 
+
 class USBPSXController : public InputController
 {
   	public:

@@ -81,6 +81,8 @@ private:
   void TCTrackServos();
   void TCServoPositions();
   void FindServoOffsets();
+   void WakeUpRoutine(void);
+
 
   boolean _fServosFree;    // Are the servos in a free state?
  

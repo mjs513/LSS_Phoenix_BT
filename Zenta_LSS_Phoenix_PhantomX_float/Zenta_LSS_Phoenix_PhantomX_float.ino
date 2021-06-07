@@ -42,14 +42,15 @@
 //CommanderInputController commander;
 USBPSXController usbControl;
 
+// Using Bioloid:
+//DynamixelServoDriver dxlServo;
+LSSServoDriver lssServo;
+
 #include "logo.h"
 #ifdef USE_ST7789
 ST7789_t3 tft = ST7789_t3(TFT_CS, TFT_DC, TFT_RST);
 #endif
 
-// Using Bioloid:
-//DynamixelServoDriver dxlServo;
-LSSServoDriver lssServo;
 
 void SketchSetup() {
 #ifdef USE_ST7789
@@ -67,8 +68,8 @@ void SketchSetup() {
     tft.writeRect((tft.width()-LOGO_WIDTH) / 2, 0, LOGO_WIDTH, LOGO_HEIGHT, (uint16_t*)lynxmotion_logo);
 #endif
 
-  g_InputController = &usbControl;
   InputController::controller(usbControl);
+  g_InputController = &usbControl;
   LSSServoDriver::driver(lssServo);
 
 }

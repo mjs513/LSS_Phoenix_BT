@@ -47,6 +47,7 @@ enum {
 };
 
 
+
 #define ARBOTIX_TO  5000        // if we don't get a valid message in this number of mills turn off
 
 #ifndef XBeeSerial
@@ -91,7 +92,6 @@ bool bthid_driver_active[CNT_HIDDEVICES] = { false };
 
 const __FlashStringHelper* const Gait_table[] PROGMEM = { F("Wave gait"), F("Ripple gait"), F("Tripple gait"), F("Tripod gait") };//A table to hold the names
 const __FlashStringHelper* const LegH_table[] PROGMEM = { F("Max leg height"), F("Med High leg height"), F("Med Low leg height"), F("Low leg height") };//A table to hold the names
-
 
 
 // some external or forward function references.

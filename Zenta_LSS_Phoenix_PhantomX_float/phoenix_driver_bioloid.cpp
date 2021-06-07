@@ -924,7 +924,14 @@ void LSSServoDriver::FindServoOffsets()
 
 }
 #endif  // OPT_FIND_SERVO_OFFSETS
-    
+
+//==============================================================================
+// WakeUpRoutine - Wake up robot in a friendly way
+//==============================================================================
+void LSSServoDriver::WakeUpRoutine(void){
+//Need to work on this function!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	g_WakeUpState = true;
+}
 
 //==============================================================================
 //	FindServoOffsets - Find the zero points for each of our servos... 
