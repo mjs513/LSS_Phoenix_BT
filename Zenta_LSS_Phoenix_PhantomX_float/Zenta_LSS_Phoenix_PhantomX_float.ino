@@ -6,7 +6,7 @@
 //Software version: V2.0
 //Date: 29-10-2009
 //Programmer: Jeroen Janssen [aka Xan]
-//         Kurt Eckhardt(KurtE) converted to C and Arduino
+//   Kurt Eckhardt(KurtE) converted to C and Arduino
 //   Kåre Halvorsen aka Zenta - Makes everything work correctly!     
 //
 // This version of the Phoenix code was ported over to the Arduino Environement
@@ -41,10 +41,30 @@
 //CommanderInputController commander;
 USBPSXController usbControl;
 
+#include "logo.h"
+#ifdef USE_ST7789
+ST7789_t3 tft = ST7789_t3(TFT_CS, TFT_DC, TFT_RST);
+#endif
+
 // Using Bioloid:
 //DynamixelServoDriver dxlServo;
 
 void SketchSetup() {
+#ifdef USE_ST7789
+#ifndef TFT_MODE
+    tft.init(TFT_WIDTH, TFT_HEIGHT);
+#else
+    tft.init(TFT_WIDTH, TFT_HEIGHT, TFT_MODE);
+#endif
+#ifdef TFT_BL
+    pinMode(TFT_BL, OUTPUT);
+    digitalWriteFast(TFT_BL, HIGH);
+#endif
+    // have some fun display logo
+    tft.fillScreen(ST77XX_RED);
+    tft.writeRect((tft.width()-LOGO_WIDTH) / 2, 0, LOGO_WIDTH, LOGO_HEIGHT, (uint16_t*)lynxmotion_logo);
+#endif
+
   //g_InputController = &commander;
   InputController::controller(usbControl);
   //ServoDriver::driver(dxlServo);

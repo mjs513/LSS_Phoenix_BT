@@ -1,5 +1,5 @@
 //====================================================================
-//Project Lynxmotion Phoenix
+//Project LYNXMOTION Phoenix
 //Description: 
 //    This is the hardware configuration file for the 
 //    Version 2 PhantomX robot.
@@ -26,13 +26,32 @@
 #define LSS_SERIAL_PORT     Serial1
 #define LSS_BAUD            250000
 
+// Lets put in option to use ST7789
+#define USE_ST7789
+#define TFT_CS		10
+#define TFT_DC		9
+#define TFT_RST		28		// Reset
+#define TFT_BL		29		// backlight
+#define TFT_WIDTH	240
+#define TFT_HEIGHT	240
+
+#define TFT_Y_MODE	120
+#define TFT_Y_GAIT	140
+
+#ifdef USE_ST7789
+#include <ST7735_t3.h>
+#include <ST7789_t3.h>
+extern ST7789_t3 tft;
+#endif
+
+
 //Define what hex I'm using:
 //#define MXPhoenix //setup for my MX64/106 based hexapod
 //#define MKIII_AX12 //Setup for the PhantomX MKIII AX-12 based hexapod
 //#define MKI_AX18 //Setup for the PhantomX MKI symmetric with orientation sensor
-#define Lynxmotion
+#define LYNXMOTION
 
-#ifdef Lynxmotion
+#ifdef LYNXMOTION
 #define ServoRes 4096
 #define VoltRef 1014
 //MIN MAX control definitions:
@@ -103,16 +122,16 @@
 #endif
 // Define other optional compnents to be included or not...
 
-#ifdef Lynxmotion
-#define cRRCoxaInv 1
-#define cRRFemurInv 1
-#define cRRTibiaInv 1
-#define cRMCoxaInv 1
-#define cRMFemurInv 1
-#define cRMTibiaInv 1
-#define cRFCoxaInv 1 
-#define cRFFemurInv 1 
-#define cRFTibiaInv 1
+#ifdef LYNXMOTION
+#define cRRCoxaInv 0
+#define cRRFemurInv 0
+#define cRRTibiaInv 0
+#define cRMCoxaInv 0
+#define cRMFemurInv 0
+#define cRMTibiaInv 0
+#define cRFCoxaInv 0 
+#define cRFFemurInv 0 
+#define cRFTibiaInv 0
 #endif
 
 #ifdef MXPhoenix //Compared to the PhantomX MKI the Femur and Tibia must be reversed
@@ -269,7 +288,7 @@
 //[MIN/MAX ANGLES] - Start off assume same as Phoenix...
 //Zenta Changes Tibia min/max
 //Must calibrate these for MX-Phoenix!
-#ifdef Lynxmotion
+#ifdef LYNXMOTION
 #define cXXTibiaMin1    -600
 #define cXXTibiaMax1     750
 #define cXXFemurMin		-900
@@ -406,7 +425,7 @@
 //--------------------------------------------------------------------
 //[LEG DIMENSIONS]
 //Universal dimensions for each leg in mm
-#ifdef Lynxmotion
+#ifdef LYNXMOTION
 #define cXXCoxaLength     51    // 50.8 to be exact
 #define cXXFemurLength    80    // 80.32mm to be exact
 #define cXXTibiaLength    116  //116.24 from drawing
@@ -464,7 +483,7 @@
 
 //--------------------------------------------------------------------
 //[BODY DIMENSIONS]
-#ifdef Lynxmotion
+#ifdef LYNXMOTION
 #define cRRCoxaAngle   -560   //Default Coxa setup angle, 34.280877 degs from center line? atan-1(60.6/88.9)
 #define cRMCoxaAngle    0      //Default Coxa setup angle
 #define cRFCoxaAngle    560      //Default Coxa setup angle
@@ -575,7 +594,7 @@
 
 //--------------------------------------------------------------------
 //[START POSITIONS FEET]
-#ifdef Lynxmotion
+#ifdef LYNXMOTION
 #define cHexInitXZ   131
 #define CHexInitXZCos60  73    // COS(56) = .707
 #define CHexInitXZSin60  109    // sin(56) = .707

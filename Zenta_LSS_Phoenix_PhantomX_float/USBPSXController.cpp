@@ -308,6 +308,14 @@ void USBPSXController::ControlInput(void)
 #endif
 				g_InControlState.DataMode = 1;//We want to send a text message to the remote when changing state
 				g_InControlState.lWhenWeLastSetDatamode = millis();
+				
+#ifdef USE_ST7789
+			tft.setCursor(0, TFT_Y_MODE);
+			tft.setTextSize(2);
+			tft.setTextColor(ST77XX_WHITE, ST77XX_RED);
+			tft.print(mode_names[ControlMode]);
+			tft.fillRect(tft.getCursorX(), tft.getCursorY(), tft.width(), 15, ST77XX_RED);
+#endif
 			}
 
 

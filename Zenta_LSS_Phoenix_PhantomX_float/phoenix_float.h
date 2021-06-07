@@ -254,8 +254,9 @@ public:
 
   virtual void Init(void);
   
- void setGaitConfig();  //kludge MJS
-
+ virtual void setGaitConfig();  //kludge MJS
+ virtual void showUserFeedback(int feedback_state);
+ 
   virtual word GetBatteryVoltage(void);
   virtual void WakeUpRoutine(void);
 
