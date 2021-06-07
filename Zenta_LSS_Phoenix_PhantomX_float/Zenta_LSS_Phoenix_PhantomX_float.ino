@@ -1,3 +1,4 @@
+
 // Warning setup to build for standard hexapod or for quad.
 //  #define QUADMODE  
 //=============================================================================
@@ -35,7 +36,7 @@
 #include "phoenix_float.h"
 #include "USBPSXController.h"
 //#include "phoenix_input_DIY_Commander.h"
-#include <LSS.h>
+#include "phoenix_driver_bioloid.h"
 
 // We are using the commander. 
 //CommanderInputController commander;
@@ -48,6 +49,7 @@ ST7789_t3 tft = ST7789_t3(TFT_CS, TFT_DC, TFT_RST);
 
 // Using Bioloid:
 //DynamixelServoDriver dxlServo;
+LSSServoDriver lssServo;
 
 void SketchSetup() {
 #ifdef USE_ST7789
@@ -65,8 +67,8 @@ void SketchSetup() {
     tft.writeRect((tft.width()-LOGO_WIDTH) / 2, 0, LOGO_WIDTH, LOGO_HEIGHT, (uint16_t*)lynxmotion_logo);
 #endif
 
-  //g_InputController = &commander;
+  g_InputController = &usbControl;
   InputController::controller(usbControl);
-  //ServoDriver::driver(dxlServo);
+  LSSServoDriver::driver(lssServo);
 
 }

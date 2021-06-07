@@ -253,9 +253,6 @@ public:
   static inline ServoDriver *driver() {return s_driver;}
 
   virtual void Init(void);
-  
- virtual void setGaitConfig();  //kludge MJS
- virtual void showUserFeedback(int feedback_state);
  
   virtual word GetBatteryVoltage(void);
   virtual void WakeUpRoutine(void);
