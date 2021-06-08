@@ -319,7 +319,7 @@ void LSSServoDriver::OutputServoInfoForLeg(byte LegIndex, short sCoxaAngle1, sho
 		DBGSerial.print(") :");
 	}
 #endif
-	g_InputController->AllowControllerInterrupts(true);    // Ok for hserial again...
+	InputController::controller()->AllowControllerInterrupts(true);    // Ok for hserial again...
 }
 
 
@@ -375,7 +375,7 @@ void LSSServoDriver::OutputServoInfoForTurret(short sRotateAngle1, short sTiltAn
 //--------------------------------------------------------------------
 void LSSServoDriver::CommitServoDriver(word wMoveTime)
 {
-	g_InputController->AllowControllerInterrupts(false);    // If on xbee on hserial tell hserial to not processess...
+	InputController::controller()->AllowControllerInterrupts(false);    // If on xbee on hserial tell hserial to not processess...
 	if (ServosEnabled) {
 		for (int i = 0; i < NUMSERVOS; i++) {
 			if (g_cur_servo_pos[i] != g_goal_servo_pos[i]) {
@@ -402,7 +402,7 @@ void LSSServoDriver::CommitServoDriver(word wMoveTime)
 	if (g_fDebugOutput)
 		DBGSerial.println(wMoveTime, DEC);
 #endif
-	g_InputController->AllowControllerInterrupts(true);
+	InputController::controller()->AllowControllerInterrupts(true);
 }
 
 //--------------------------------------------------------------------
@@ -411,11 +411,11 @@ void LSSServoDriver::CommitServoDriver(word wMoveTime)
 void LSSServoDriver::FreeServos(void)
 {
 	if (!g_fServosFree) {
-		g_InputController->AllowControllerInterrupts(false);    // If on xbee on hserial tell hserial to not processess...
+		InputController::controller()->AllowControllerInterrupts(false);    // If on xbee on hserial tell hserial to not processess...
 
 		// See if we can do by broadcast
 		LSS::genericWrite(LSS_BroadcastID, LSS_ActionLimp); // Tell all of the servos to go limp
-		g_InputController->AllowControllerInterrupts(true);
+		InputController::controller()->AllowControllerInterrupts(true);
 		g_fServosFree = true;
 	}
 }
@@ -470,7 +470,7 @@ void LSSServoDriver::MakeSureServosAreOn(void)
 		if (!g_fServosFree)
 			return;    // we are not free
 
-		g_InputController->AllowControllerInterrupts(false);    // If on xbee on hserial tell hserial to not processess...
+		InputController::controller()->AllowControllerInterrupts(false);    // If on xbee on hserial tell hserial to not processess...
 
 		LSS::genericWrite(LSS_BroadcastID, LSS_ActionHold); // Tell all of the servos to hold a position.
 		boolean servos_reset = false;
@@ -508,7 +508,7 @@ void LSSServoDriver::MakeSureServosAreOn(void)
 			LSS::genericWrite(LSS_BroadcastID, LSS_ActionHold); // Tell all of the servos to hold a position
 		}
 
-		g_InputController->AllowControllerInterrupts(true);
+		InputController::controller()->AllowControllerInterrupts(true);
 		g_fServosFree = false;
 	}
 }
