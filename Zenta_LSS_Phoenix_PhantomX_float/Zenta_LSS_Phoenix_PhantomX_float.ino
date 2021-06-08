@@ -1,6 +1,6 @@
 
 // Warning setup to build for standard hexapod or for quad.
-//  #define QUADMODE  
+//  #define QUADMODE
 //=============================================================================
 //Project Lynxmotion Phoenix
 //Description: Phoenix software
@@ -8,14 +8,14 @@
 //Date: 29-10-2009
 //Programmer: Jeroen Janssen [aka Xan]
 //   Kurt Eckhardt(KurtE) converted to C and Arduino
-//   Kåre Halvorsen aka Zenta - Makes everything work correctly!     
+//   Kåre Halvorsen aka Zenta - Makes everything work correctly!
 //
 // This version of the Phoenix code was ported over to the Arduino Environement
 // and is specifically configured for the Arbotix Robocontroller board
 //
 //=============================================================================
 // Warning:: This configuration does not check voltages, so you should be careful to
-// not allow the lipo to discharge too far. 
+// not allow the lipo to discharge too far.
 //
 // This configuration should hopefully run on a stock PhantomX, without any
 // of my changes.
@@ -38,7 +38,7 @@
 //#include "phoenix_input_DIY_Commander.h"
 #include "phoenix_driver_bioloid.h"
 
-// We are using the commander. 
+// We are using the commander.
 //CommanderInputController commander;
 USBPSXController usbControl;
 
@@ -65,11 +65,11 @@ void SketchSetup() {
 #endif
     // have some fun display logo
     tft.fillScreen(ST77XX_RED);
-    tft.writeRect((tft.width()-LOGO_WIDTH) / 2, 0, LOGO_WIDTH, LOGO_HEIGHT, (uint16_t*)lynxmotion_logo);
+    tft.writeRect((tft.width() - LOGO_WIDTH) / 2, 0, LOGO_WIDTH, LOGO_HEIGHT, (uint16_t*)lynxmotion_logo);
 #endif
 
-  InputController::controller(usbControl);
-  g_InputController = &usbControl;
-  LSSServoDriver::driver(lssServo);
+    InputController::controller(usbControl);
+    //g_InputController = &usbControl;
+    LSSServoDriver::driver(lssServo);
 
 }
