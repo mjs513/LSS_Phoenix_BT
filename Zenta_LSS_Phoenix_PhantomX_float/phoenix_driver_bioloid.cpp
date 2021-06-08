@@ -930,7 +930,7 @@ void LSSServoDriver::FindServoOffsets()
 //==============================================================================
 void LSSServoDriver::WakeUpRoutine(void){
 //Need to work on this function!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	g_WakeUpState = true;
+	g_WakeUpState = false;
 }
 
 //==============================================================================

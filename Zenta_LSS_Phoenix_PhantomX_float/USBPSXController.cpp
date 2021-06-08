@@ -46,8 +46,6 @@ enum {
 	NORM_NORM = 0, NORM_LONG, HIGH_NORM, HIGH_LONG
 };
 
-
-
 #define ARBOTIX_TO  5000        // if we don't get a valid message in this number of mills turn off
 
 #ifndef XBeeSerial
@@ -69,6 +67,10 @@ USBHIDParser hid3(myusb);
 JoystickController joystick1(myusb);
 //BluetoothController bluet(myusb, true, "0000");   // Version does pairing to device
 BluetoothController bluet(myusb);   // version assumes it already was paired
+
+int user_axis[64];
+uint32_t g_buttons_prev = 0;
+uint32_t g_buttons;
 
 USBDriver* drivers[] = { &hub1, &hub2, &joystick1, &bluet, &hid1, &hid2, &hid3 };
 
@@ -92,6 +94,9 @@ bool bthid_driver_active[CNT_HIDDEVICES] = { false };
 
 const __FlashStringHelper* const Gait_table[] PROGMEM = { F("Wave gait"), F("Ripple gait"), F("Tripple gait"), F("Tripod gait") };//A table to hold the names
 const __FlashStringHelper* const LegH_table[] PROGMEM = { F("Max leg height"), F("Med High leg height"), F("Med Low leg height"), F("Low leg height") };//A table to hold the names
+#ifdef USE_ST7789
+const __FlashStringHelper* const mode_names[] PROGMEM = { F("Walk"), F("Translate"), F("Rotate"), F("Single") };
+#endif
 
 
 // some external or forward function references.
@@ -108,17 +113,24 @@ const uint32_t USBPSXController::PS3_BTNS[] DMAMEM = { 0x400, 0x100, 0x2, 0x800,
                                                      };
 
 const uint32_t USBPSXController::PS4_BTNS[] DMAMEM = {
-	0x10, 0x40, 0x400, 0x20, 0x80, 0x800,
-	0x8, 0x1, 0x2, 0x4,
+	0x10, 0x40, 0x400, 0x20, 0x80, 0x800,    //L1,L2,??? , R1, R2 ?????
+	0x8, 0x1, 0x2, 0x4,         //tri, square, cross, circle
 	0x1000, 0x200, 0x100,       // PS, options, Share
-	0x10000, 0x40000, 0x80000, 0x20000       // HAT
+	0x10000, 0x40000, 0x80000, 0x20000       // HAT - up, down, left, right
 };
 const uint32_t USBPSXController::PS4_MAP_HAT_MAP[] DMAMEM = {
 	//0x10, 0x30, 0x20, 0x60, 0x40, 0xc0, 0x80, 0x90, 0x00 };
 	0x10000, 0x30000, 0x20000, 0x60000, 0x40000, 0xC0000, 0x80000, 0x90000, 0x0
+	//up,    NE,      right,   SE,      down,    SW,      left,    NW,   ???
 };
 
-
+enum {
+	BUT_L1 = 0, BUT_L2, BUT_L3, BUT_R1, BUT_R2, BUT_R3,
+	BUT_TRI, BUT_SQ, BUT_X, BUT_CIRC,
+	BUT_PS3, BUT_SELECT, BUT_START,
+	BUT_HAT_UP, BUT_HAT_DOWN, BUT_HAT_LEFT, BUT_HAT_RIGHT
+};
+enum { AXIS_LX, AXIS_LY, AXIS_RX, AXIS_LT, AXIS_RT, AXIS_RY };  // Order of PS3
 
 //==============================================================================
 // This is The function that is called by the Main program to initialize
@@ -218,7 +230,7 @@ void USBPSXController::ControlInput(void)
 			// lets try to reduce number of fields that update
 			//joystick1.axisChangeNotifyMask(0xFFFFFl);
 		}
-		_buttons = joystick1.getButtons();
+		g_buttons = joystick1.getButtons();
 		// [SWITCH MODES]
 		// We will use L1 button with the Right joystick to control both body offset as well as Speed...
 		// We move each pass through this by a percentage of how far we are from center in each direction
@@ -230,22 +242,22 @@ void USBPSXController::ControlInput(void)
 		int ry = joystick1.getAxis(AXIS_RY) - 127;
 #ifdef DBGSerial
 		if (_fDebugJoystick) {
-			DBGSerial.printf("(%d)BTNS: %x LX: %d, LY: %d, RX: %d, RY: %d LT: %d RT: %d\r\n", joystick1.joystickType(), _buttons,
+			DBGSerial.printf("(%d)BTNS: %x LX: %d, LY: %d, RX: %d, RY: %d LT: %d RT: %d\r\n", joystick1.joystickType(), g_buttons,
 			                 lx, ly, rx, ry, joystick1.getAxis(AXIS_LT), joystick1.getAxis(AXIS_RT));
 		}
 #endif
 		if (joystick1.joystickType() == JoystickController::PS4) {
 			int hat = joystick1.getAxis(10);  // get hat
-			if ((hat >= 0) && (hat < 8)) _buttons |= PS4_MAP_HAT_MAP[hat];
+			if ((hat >= 0) && (hat < 8)) g_buttons |= PS4_MAP_HAT_MAP[hat];
 			BTN_MASKS = PS4_BTNS;	// should have been set earlier, but just in case...
 		}
 		else {
 			BTN_MASKS = PS3_BTNS;
 		}
 
-		if (ButtonPressed(BUT_PS3)) {
+		if ((g_buttons & BTN_MASKS[BUT_PS3]) && !(g_buttons_prev & BTN_MASKS[BUT_PS3])){
 			if ((joystick1.joystickType() == JoystickController::PS3) &&
-			    (_buttons & (BTN_MASKS[BUT_L1] | BTN_MASKS[BUT_R1]))) {
+			    (g_buttons & (BTN_MASKS[BUT_L1] | BTN_MASKS[BUT_R1]))) {
 				// PS button just pressed and select button pressed act like PS4 share like...
 				// Note: you can use either R1 or L1 with the PS button, to work with Sony Move Navigation...
 				DBGSerial.print("\nPS3 Pairing Request");
@@ -283,13 +295,14 @@ void USBPSXController::ControlInput(void)
 		}
 
 		if (!g_WakeUpState) {	//Don't take care of controller inputs until the WakeUpState is over (false)
-			if (ButtonPressed(BUT_L3)) {
+
+			if ((g_buttons & BTN_MASKS[BUT_X]))  {     //Was L3
 				MSound(1, 50, 2000);
 				_fDebugJoystick = !_fDebugJoystick;
 			}
 
 			// Cycle through modes...
-			if (ButtonPressed(BUT_R3)) {
+			if ((g_buttons & BTN_MASKS[BUT_TRI]) && !(g_buttons_prev & BTN_MASKS[BUT_TRI])) {
 				if (++_controlMode >= MODECNT) {
 					_controlMode = WALKMODE;    // cycled back around...
 					MSound(2, 50, 2000, 50, 3000);
@@ -308,20 +321,25 @@ void USBPSXController::ControlInput(void)
 #endif
 				g_InControlState.DataMode = 1;//We want to send a text message to the remote when changing state
 				g_InControlState.lWhenWeLastSetDatamode = millis();
+				
+			// If we have display display new mode
+#ifdef USE_ST7789
+			tft.setCursor(0, TFT_Y_MODE);
+			tft.setTextSize(2);
+			tft.setTextColor(ST77XX_WHITE, ST77XX_RED);
+			tft.print(mode_names[_controlMode]);
+			tft.fillRect(tft.getCursorX(), tft.getCursorY(), tft.width(), 15, ST77XX_RED);
+#endif
 			}
 
 
 			//Stand up, sit down
-			if (ButtonPressed(BUT_PS3)) {
+			//if (ButtonPressed(BUT_PS3)) {
+			if ((g_buttons & BTN_MASKS[BUT_HAT_DOWN]) && !(g_buttons_prev & BTN_MASKS[BUT_HAT_DOWN])) {	
 				if (_bodyYOffset > 0) {
 					_bodyYOffset = 0;
 					g_InhibitMovement = true;//Do not allow body movement and walking
 					strcpy(g_InControlState.DataPack, "Resting position");
-				}
-				else {
-					_bodyYOffset = 80;//Zenta a little higher for avoiding the out of range issue on a symmetric MKI PhanomX
-					g_InhibitMovement = false; //Allow body movement and walking
-					strcpy(g_InControlState.DataPack, "Ready for action!");
 				}
 				g_InControlState.DataMode = 1;//We want to send a text message to the remote when changing state
 				g_InControlState.lWhenWeLastSetDatamode = millis();
@@ -329,10 +347,45 @@ void USBPSXController::ControlInput(void)
 
 				fAdjustLegPositions = false;//Zenta setting this to false removes a bug
 				_fDynamicLegXZLength = false;
+#ifdef USE_ST7789
+			tft.setCursor(0, TFT_Y_PWR);
+			tft.setTextSize(2);
+			tft.setTextColor(ST77XX_WHITE, ST77XX_RED);
+			tft.print("Sitting...");
+			tft.fillRect(tft.getCursorX(), tft.getCursorY(), tft.width(), 15, ST77XX_RED);
+#endif
+				
+			}	
+				
+			if ((g_buttons & BTN_MASKS[BUT_HAT_UP]) && !(g_buttons_prev & BTN_MASKS[BUT_HAT_UP])) {	
+					_bodyYOffset = 80;//Zenta a little higher for avoiding the out of range issue on a symmetric MKI PhanomX
+					g_InhibitMovement = false; //Allow body movement and walking
+					strcpy(g_InControlState.DataPack, "Ready for action!");
+				g_InControlState.DataMode = 1;//We want to send a text message to the remote when changing state
+				g_InControlState.lWhenWeLastSetDatamode = millis();
+				g_InControlState.ForceSlowCycleWait = 2;//Do this action slowly..
+
+				fAdjustLegPositions = false;//Zenta setting this to false removes a bug
+				_fDynamicLegXZLength = false;
+#ifdef USE_ST7789
+			tft.setCursor(0, TFT_Y_PWR);
+			tft.setTextSize(2);
+			tft.setTextColor(ST77XX_WHITE, ST77XX_RED);
+			tft.print("Standing...");
+			tft.fillRect(tft.getCursorX(), tft.getCursorY(), tft.width(), 15, ST77XX_RED);
+#endif
+				
 			}
 
 
-			if (ButtonDown(BUT_L1)) {
+			if (g_buttons & BTN_MASKS[BUT_L1]) {
+#ifdef USE_ST7789
+			tft.setCursor(0, TFT_Y_PWR);
+			tft.setTextSize(2);
+			tft.setTextColor(ST77XX_WHITE, ST77XX_RED);
+			tft.print("Adjust Position/Spd...");
+			tft.fillRect(tft.getCursorX(), tft.getCursorY(), tft.width(), 15, ST77XX_RED);
+#endif
 				int delta = ry / 25;
 				if (delta) {
 					_bodyYOffset = max(min(_bodyYOffset + delta, MAX_BODY_Y), 0);
@@ -435,10 +488,10 @@ void USBPSXController::ControlInput(void)
 				}
 
 				//Switch between absolute and relative body translation and rotation. Using R1
-				if (ButtonPressed(BUT_R1)) {
+				if ((g_buttons & BTN_MASKS[BUT_R1]) && !(g_buttons_prev & BTN_MASKS[BUT_R1]))  {
 				}
 				//Switch between two balance methods
-				if (ButtonPressed(BUT_TRI)) {
+				if ((g_buttons & BTN_MASKS[BUT_CIRC]) && !(g_buttons_prev & BTN_MASKS[BUT_CIRC]))  {
 					g_InControlState.BalanceMode++;
 					if (g_InControlState.BalanceMode < 2) {//toogle between two modes
 						MSound(1, 250, 1500);
@@ -465,7 +518,7 @@ void USBPSXController::ControlInput(void)
 
 				//Toogle normal start walking and delayed walk. Look around, then walk effect.
 				//Toogle dampen down speed. Might run this permanently?
-				if (ButtonPressed(BUT_SQ)) {
+				if ((g_buttons & BTN_MASKS[BUT_SQ]) && !(g_buttons_prev & BTN_MASKS[BUT_SQ])) {
 					g_InControlState.DampDwnSpeed = !g_InControlState.DampDwnSpeed;
 					if (g_InControlState.DampDwnSpeed) {
 						MSound(1, 250, 1500);
@@ -503,7 +556,7 @@ void USBPSXController::ControlInput(void)
 #ifdef OPT_SINGLELEG
 			if (_controlMode == SINGLELEGMODE) {
 				//Switch leg for single leg control
-				if (ButtonPressed(BUT_R1)) {
+				if ((g_buttons & BTN_MASKS[BUT_R1]) && !(g_buttons_prev & BTN_MASKS[BUT_R1]))  {
 
 					if (g_InControlState.SelectedLeg == 5) { //Only toogle between the two front legs
 						g_InControlState.SelectedLeg = 2;//Right Leg
@@ -535,7 +588,7 @@ void USBPSXController::ControlInput(void)
 #endif
 				}
 				// Hold single leg in place
-				if (ButtonPressed(BUT_R2)) {
+				if ((g_buttons & BTN_MASKS[BUT_R2]) && !(g_buttons_prev & BTN_MASKS[BUT_R2])) {
 					MSound(1, 50, 2000);
 					if (!g_InControlState.fSLHold && !_wantToEndSLHold) {
 						_prevYposSLHold = g_InControlState.SLLeg.y; //Save the Ypos when holding it
@@ -583,9 +636,10 @@ void USBPSXController::ControlInput(void)
 				AdjustLegPositionsToBodyHeight();    // Put main workings into main program file
 
 			// Save away the buttons state as to not process the same press twice.
-			_buttons_prev = _buttons;
+			g_buttons_prev = g_buttons;
 		}
 		_ulLastMsgTime = millis();
+		g_buttons_prev = g_buttons;
 	}
 	else {
 		if (!g_WakeUpState) { //At the moment we can't turn off robot during the WakeUpState, is that a problem?

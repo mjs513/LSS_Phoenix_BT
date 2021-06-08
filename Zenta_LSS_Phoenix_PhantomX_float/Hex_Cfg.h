@@ -37,6 +37,7 @@
 
 #define TFT_Y_MODE	120
 #define TFT_Y_GAIT	140
+#define TFT_Y_PWR  140
 
 #ifdef USE_ST7789
 #include <ST7735_t3.h>
