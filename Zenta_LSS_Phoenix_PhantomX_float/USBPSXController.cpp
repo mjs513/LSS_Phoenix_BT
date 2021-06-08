@@ -105,25 +105,6 @@ const short cLegLiftHeight[] PROGMEM = {
 };
 
 
-const uint32_t USBPSXController::PS3_BTNS[] DMAMEM = { 0x400, 0x100, 0x2, 0x800, 0x200, 0x4,
-                                                       0x1000, 0x8000, 0x4000, 0x2000,
-                                                       0x10000, 0x1, 0x8,
-                                                       // UP  DN    LFT   RHT
-                                                       0x10, 0x40, 0x80, 0x20
-                                                     };
-
-const uint32_t USBPSXController::PS4_BTNS[] DMAMEM = {
-	0x10, 0x40, 0x400, 0x20, 0x80, 0x800,    //L1,L2,??? , R1, R2 ?????
-	0x8, 0x1, 0x2, 0x4,         //tri, square, cross, circle
-	0x1000, 0x200, 0x100,       // PS, options, Share
-	0x10000, 0x40000, 0x80000, 0x20000       // HAT - up, down, left, right
-};
-const uint32_t USBPSXController::PS4_MAP_HAT_MAP[] DMAMEM = {
-	//0x10, 0x30, 0x20, 0x60, 0x40, 0xc0, 0x80, 0x90, 0x00 };
-	0x10000, 0x30000, 0x20000, 0x60000, 0x40000, 0xC0000, 0x80000, 0x90000, 0x0
-	//up,    NE,      right,   SE,      down,    SW,      left,    NW,   ???
-};
-
 enum {
 	BUT_L1 = 0, BUT_L2, BUT_L3, BUT_R1, BUT_R2, BUT_R3,
 	BUT_TRI, BUT_SQ, BUT_X, BUT_CIRC,
@@ -131,6 +112,26 @@ enum {
 	BUT_HAT_UP, BUT_HAT_DOWN, BUT_HAT_LEFT, BUT_HAT_RIGHT
 };
 enum { AXIS_LX, AXIS_LY, AXIS_RX, AXIS_LT, AXIS_RT, AXIS_RY };  // Order of PS3
+
+const uint32_t USBPSXController::PS3_BTNS[] = { 0x400, 0x100, 0x2, 0x800, 0x200, 0x4,
+                                                       0x1000, 0x8000, 0x4000, 0x2000,
+                                                       0x10000, 0x1, 0x8,
+                                                       // UP  DN    LFT   RHT
+                                                       0x10, 0x40, 0x80, 0x20
+                                                     };
+
+const uint32_t USBPSXController::PS4_BTNS[] = {
+	0x10, 0x40, 0x400, 0x20, 0x80, 0x800,    //L1,L2,??? , R1, R2 ?????
+	0x8, 0x1, 0x2, 0x4,         //tri, square, cross, circle
+	0x1000, 0x200, 0x100,       // PS, options, Share
+	0x10000, 0x40000, 0x80000, 0x20000       // HAT - up, down, left, right
+};
+const uint32_t USBPSXController::PS4_MAP_HAT_MAP[] = {
+	//0x10, 0x30, 0x20, 0x60, 0x40, 0xc0, 0x80, 0x90, 0x00 };
+	0x10000, 0x30000, 0x20000, 0x60000, 0x40000, 0xC0000, 0x80000, 0x90000, 0x0
+	//up,    NE,      right,   SE,      down,    SW,      left,    NW,   ???
+};
+
 
 //==============================================================================
 // This is The function that is called by the Main program to initialize
@@ -255,6 +256,7 @@ void USBPSXController::ControlInput(void)
 			BTN_MASKS = PS3_BTNS;
 		}
 
+
 		if ((g_buttons & BTN_MASKS[BUT_PS3]) && !(g_buttons_prev & BTN_MASKS[BUT_PS3])){
 			if ((joystick1.joystickType() == JoystickController::PS3) &&
 			    (g_buttons & (BTN_MASKS[BUT_L1] | BTN_MASKS[BUT_R1]))) {
@@ -358,9 +360,9 @@ void USBPSXController::ControlInput(void)
 			}	
 				
 			if ((g_buttons & BTN_MASKS[BUT_HAT_UP]) && !(g_buttons_prev & BTN_MASKS[BUT_HAT_UP])) {	
-					_bodyYOffset = 80;//Zenta a little higher for avoiding the out of range issue on a symmetric MKI PhanomX
-					g_InhibitMovement = false; //Allow body movement and walking
-					strcpy(g_InControlState.DataPack, "Ready for action!");
+				_bodyYOffset = 80;//Zenta a little higher for avoiding the out of range issue on a symmetric MKI PhanomX
+				g_InhibitMovement = false; //Allow body movement and walking
+				strcpy(g_InControlState.DataPack, "Ready for action!");
 				g_InControlState.DataMode = 1;//We want to send a text message to the remote when changing state
 				g_InControlState.lWhenWeLastSetDatamode = millis();
 				g_InControlState.ForceSlowCycleWait = 2;//Do this action slowly..
