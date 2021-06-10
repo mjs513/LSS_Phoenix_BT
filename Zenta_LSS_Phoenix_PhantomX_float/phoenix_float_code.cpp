@@ -599,7 +599,10 @@ void setup(){
   InputController::controller()->Init();
 
   // Servo Driver
-  ServoMoveTime = 150;
+  ServoMoveTime = 250;  //was 150
+  
+  
+  
   g_InControlState.fRobotOn = 0;
   g_fLowVoltageShutdown = false;
 #ifdef DEBUG_IOPINS    

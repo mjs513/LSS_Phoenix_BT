@@ -383,9 +383,10 @@ void LSSServoDriver::CommitServoDriver(word wMoveTime)
 				// Set the id
 				int servo_id = pgm_read_byte(&cPinTable[i]);
 				myLSS.setServoID(servo_id);
-				myLSS.moveT(g_goal_servo_pos[i], wMoveTime);
+				myLSS.moveT(g_goal_servo_pos[i] * 10, wMoveTime);
 			}
 		}
+		delay(250);
 	}
 	else {
 		// Rear middle front

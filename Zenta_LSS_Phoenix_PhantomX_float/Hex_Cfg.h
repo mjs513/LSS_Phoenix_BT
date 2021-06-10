@@ -123,14 +123,25 @@ extern ST7789_t3 tft;
 #endif
 // Define other optional compnents to be included or not...
 
+#ifdef LYNXMOTION1
+#define cRRCoxaInv 	1
+#define cRRFemurInv 1
+#define cRRTibiaInv 1
+#define cRMCoxaInv 	1
+#define cRMFemurInv 1
+#define cRMTibiaInv 1
+#define cRFCoxaInv 	1 
+#define cRFFemurInv 1 
+#define cRFTibiaInv 1
+#endif
 #ifdef LYNXMOTION
-#define cRRCoxaInv 0
+#define cRRCoxaInv 	0
 #define cRRFemurInv 0
 #define cRRTibiaInv 0
-#define cRMCoxaInv 0
+#define cRMCoxaInv 	0
 #define cRMFemurInv 0
 #define cRMTibiaInv 0
-#define cRFCoxaInv 0 
+#define cRFCoxaInv 	0 
 #define cRFFemurInv 0 
 #define cRFTibiaInv 0
 #endif
@@ -290,12 +301,12 @@ extern ST7789_t3 tft;
 //Zenta Changes Tibia min/max
 //Must calibrate these for MX-Phoenix!
 #ifdef LYNXMOTION
-#define cXXTibiaMin1    -600
-#define cXXTibiaMax1     750
-#define cXXFemurMin		-900
-#define cXXFemurMax		 900
-#define cXXCoxaMin		-750
-#define cXXCoxaMax		 750
+#define cXXTibiaMin1    -60
+#define cXXTibiaMax1     75
+#define cXXFemurMin		-90
+#define cXXFemurMax		 90
+#define cXXCoxaMin		-75
+#define cXXCoxaMax		 75
 #endif
 
 #ifdef MXPhoenix
@@ -485,12 +496,12 @@ extern ST7789_t3 tft;
 //--------------------------------------------------------------------
 //[BODY DIMENSIONS]
 #ifdef LYNXMOTION
-#define cRRCoxaAngle   -560   //Default Coxa setup angle, 34.280877 degs from center line? atan-1(60.6/88.9)
+#define cRRCoxaAngle   -56   //Default Coxa setup angle, 34.280877 degs from center line? atan-1(60.6/88.9)
 #define cRMCoxaAngle    0      //Default Coxa setup angle
-#define cRFCoxaAngle    560      //Default Coxa setup angle
-#define cLRCoxaAngle    -560   //Default Coxa setup angle
+#define cRFCoxaAngle    56      //Default Coxa setup angle
+#define cLRCoxaAngle    -56   //Default Coxa setup angle
 #define cLMCoxaAngle    0      //Default Coxa setup angle
-#define cLFCoxaAngle    560     //Default Coxa setup angle
+#define cLFCoxaAngle    56     //Default Coxa setup angle
 
 #define cRROffsetX      -61    //Distance X from center of the body to the Right Rear coxa
 #define cRROffsetZ       89     //Distance Z from center of the body to the Right Rear coxa

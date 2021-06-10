@@ -356,13 +356,15 @@ void USBPSXController::ControlInput(void)
 			tft.print("Sitting...");
 			tft.fillRect(tft.getCursorX(), tft.getCursorY(), tft.width(), 15, ST77XX_RED);
 #endif
+			}
+			
 				
-			}	
-				
-			if ((g_buttons & BTN_MASKS[BUT_HAT_UP]) && !(g_buttons_prev & BTN_MASKS[BUT_HAT_UP])) {	
-				_bodyYOffset = 80;//Zenta a little higher for avoiding the out of range issue on a symmetric MKI PhanomX
-				g_InhibitMovement = false; //Allow body movement and walking
-				strcpy(g_InControlState.DataPack, "Ready for action!");
+			if ((g_buttons & BTN_MASKS[BUT_HAT_UP]) && !(g_buttons_prev & BTN_MASKS[BUT_HAT_UP])) {
+				if (_bodyYOffset < 35) {
+					_bodyYOffset = 35;//Zenta a little higher for avoiding the out of range issue on a symmetric MKI PhanomX
+					g_InhibitMovement = false; //Allow body movement and walking
+					strcpy(g_InControlState.DataPack, "Ready for action!");
+				}
 				g_InControlState.DataMode = 1;//We want to send a text message to the remote when changing state
 				g_InControlState.lWhenWeLastSetDatamode = millis();
 				g_InControlState.ForceSlowCycleWait = 2;//Do this action slowly..
@@ -376,7 +378,6 @@ void USBPSXController::ControlInput(void)
 			tft.print("Standing...");
 			tft.fillRect(tft.getCursorX(), tft.getCursorY(), tft.width(), 15, ST77XX_RED);
 #endif
-				
 			}
 
 
