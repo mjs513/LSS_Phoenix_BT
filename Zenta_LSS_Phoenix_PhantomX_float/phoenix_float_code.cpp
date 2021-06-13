@@ -599,7 +599,7 @@ void setup(){
   InputController::controller()->Init();
 
   // Servo Driver
-  ServoMoveTime = 250;  //was 150
+  ServoMoveTime = 150;  //was 150
   
   
   

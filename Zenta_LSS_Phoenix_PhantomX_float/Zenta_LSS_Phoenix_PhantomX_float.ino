@@ -32,6 +32,7 @@
 #include <EEPROM.h>
 #include <avr\pgmspace.h>
 #include "Hex_Cfg.h"
+#include "SparkFun_Qwiic_Keypad_Arduino_Library.h" //Click here to get the library: http://librarymanager/All#SparkFun_keypad
 
 #include "phoenix_float.h"
 #include "USBPSXController.h"

@@ -65,19 +65,30 @@ USBHIDParser hid1(myusb);
 USBHIDParser hid2(myusb);
 USBHIDParser hid3(myusb);
 JoystickController joystick1(myusb);
-//BluetoothController bluet(myusb, true, "0000");   // Version does pairing to device
-BluetoothController bluet(myusb);   // version assumes it already was paired
+#if defined(BLUETOOTH)
+	//BluetoothController bluet(myusb, true, "0000");   // Version does pairing to device
+	BluetoothController bluet(myusb);   // version assumes it already was paired
+
+  USBDriver* drivers[] = { &hub1, &hub2, &joystick1, &bluet, &hid1, &hid2, &hid3 };
+  
+  #define CNT_DEVICES (sizeof(drivers)/sizeof(drivers[0]))
+  const char* driver_names[CNT_DEVICES] = { "Hub1", "Hub2", "JOY1D", "Bluet", "HID1" , "HID2", "HID3" };
+  
+  bool driver_active[CNT_DEVICES] = { false, false, false, false };
+#else
+  BluetoothController bluet(myusb);   // version assumes it already was paired
+
+  USBDriver* drivers[] = { &hub1, &hub2, &joystick1, &hid1, &hid2, &hid3 };
+  
+  #define CNT_DEVICES (sizeof(drivers)/sizeof(drivers[0]))
+  const char* driver_names[CNT_DEVICES] = { "Hub1", "Hub2", "JOY1D", "HID1" , "HID2", "HID3" };
+  
+  bool driver_active[CNT_DEVICES] = { false, false, false };
+#endif
 
 int user_axis[64];
-uint32_t g_buttons_prev = 0;
-uint32_t g_buttons;
-
-USBDriver* drivers[] = { &hub1, &hub2, &joystick1, &bluet, &hid1, &hid2, &hid3 };
-
-#define CNT_DEVICES (sizeof(drivers)/sizeof(drivers[0]))
-const char* driver_names[CNT_DEVICES] = { "Hub1", "Hub2", "JOY1D", "Bluet", "HID1" , "HID2", "HID3" };
-
-bool driver_active[CNT_DEVICES] = { false, false, false, false };
+uint32_t _buttons_prev = 0;
+uint32_t _buttons;
 
 // Lets also look at HID Input devices
 USBHIDInput* hiddrivers[] = { &joystick1 };
@@ -86,11 +97,12 @@ USBHIDInput* hiddrivers[] = { &joystick1 };
 const char* hid_driver_names[CNT_DEVICES] = { "Joystick1" };
 
 bool hid_driver_active[CNT_DEVICES] = { false };
-
-BTHIDInput* bthiddrivers[] = { &joystick1 };
-#define CNT_BTHIDDEVICES (sizeof(bthiddrivers)/sizeof(bthiddrivers[0]))
-const char* bthid_driver_names[CNT_HIDDEVICES] = { "joystick" };
-bool bthid_driver_active[CNT_HIDDEVICES] = { false };
+#if defined(BLUETOOTH)
+	BTHIDInput* bthiddrivers[] = { &joystick1 };
+	#define CNT_BTHIDDEVICES (sizeof(bthiddrivers)/sizeof(bthiddrivers[0]))
+	const char* bthid_driver_names[CNT_HIDDEVICES] = { "joystick" };
+	bool bthid_driver_active[CNT_HIDDEVICES] = { false };
+#endif
 
 const __FlashStringHelper* const Gait_table[] PROGMEM = { F("Wave gait"), F("Ripple gait"), F("Tripple gait"), F("Tripod gait") };//A table to hold the names
 const __FlashStringHelper* const LegH_table[] PROGMEM = { F("Max leg height"), F("Med High leg height"), F("Med Low leg height"), F("Low leg height") };//A table to hold the names
@@ -132,6 +144,7 @@ const uint32_t USBPSXController::PS4_MAP_HAT_MAP[] = {
 	//up,    NE,      right,   SE,      down,    SW,      left,    NW,   ???
 };
 
+ static bool joystick_ps4_bt = false;
 
 //==============================================================================
 // This is The function that is called by the Main program to initialize
@@ -201,13 +214,6 @@ void USBPSXController::ControlInput(void)
 	// check to see if the device list has changed:
 	UpdateActiveDeviceInfo();
 	//  processPS3MotionTimer();  - not sure yet support this yet.
-#ifdef _SPARKFUN_QWIIC_KEYPAD_ARDUINO_LIBRARY_H
-	if (_haveKeypad) {
-		_keypad.updateFIFO();
-		_keypad_button = _keypad_button.getButton();
-	}  			//Need to pass in which bus Wire?
-#endif
-
 
 
 	if (joystick1.available()) {
@@ -231,35 +237,53 @@ void USBPSXController::ControlInput(void)
 			// lets try to reduce number of fields that update
 			//joystick1.axisChangeNotifyMask(0xFFFFFl);
 		}
-		g_buttons = joystick1.getButtons();
+		_buttons = joystick1.getButtons();
 		// [SWITCH MODES]
 		// We will use L1 button with the Right joystick to control both body offset as well as Speed...
 		// We move each pass through this by a percentage of how far we are from center in each direction
 		// We get feedback with height by seeing the robot move up and down.  For Speed, I put in sounds
 		// which give an idea, but only for those whoes robot has a speaker
-		int lx = joystick1.getAxis(AXIS_LX) - 127;
-		int ly = joystick1.getAxis(AXIS_LY) - 127;
-		int rx = joystick1.getAxis(AXIS_RX) - 127;
-		int ry = joystick1.getAxis(AXIS_RY) - 127;
+		int lx = (joystick1.getAxis(AXIS_LX) - 127);
+		int ly = (joystick1.getAxis(AXIS_LY) - 127);
+		int rx = (joystick1.getAxis(AXIS_RX) - 127);
+		int ry = (joystick1.getAxis(AXIS_RY) - 127);
 #ifdef DBGSerial
 		if (_fDebugJoystick) {
-			DBGSerial.printf("(%d)BTNS: %x LX: %d, LY: %d, RX: %d, RY: %d LT: %d RT: %d\r\n", joystick1.joystickType(), g_buttons,
+			DBGSerial.printf("(%d)BTNS: %x LX: %d, LY: %d, RX: %d, RY: %d LT: %d RT: %d\r\n", joystick1.joystickType(), _buttons,
 			                 lx, ly, rx, ry, joystick1.getAxis(AXIS_LT), joystick1.getAxis(AXIS_RT));
 		}
 #endif
+
+#if defined(BLUETOOTH)
+		if (joystick_ps4_bt || joystick1.joystickType() == JoystickController::PS4) {
+			int hat = joystick_ps4_bt? joystick1.getAxis(10) : joystick1.getAxis(9);  // get hat - up/dwn buttons
+#else
 		if (joystick1.joystickType() == JoystickController::PS4) {
-			int hat = joystick1.getAxis(10);  // get hat
-			if ((hat >= 0) && (hat < 8)) g_buttons |= PS4_MAP_HAT_MAP[hat];
+			int hat = joystick1.getAxis(9);  // get hat - up/dwn buttons
+#endif
+			if ((hat >= 0) && (hat < 8)) _buttons |= PS4_MAP_HAT_MAP[hat];
 			BTN_MASKS = PS4_BTNS;	// should have been set earlier, but just in case...
 		}
 		else {
 			BTN_MASKS = PS3_BTNS;
-		}
+		}		
+		
+		
+		
+		
+		
 
+#ifdef _SPARKFUN_QWIIC_KEYPAD_ARDUINO_LIBRARY_H
+	if (_haveKeypad) {
+		_keypad.updateFIFO();
+		_keypad_button = _keypad.getButton();
+	}  			//Need to pass in which bus Wire?
+#endif
 
-		if ((g_buttons & BTN_MASKS[BUT_PS3]) && !(g_buttons_prev & BTN_MASKS[BUT_PS3])){
+#if defined(BLUETOOTH)
+		if ((_buttons & BTN_MASKS[BUT_PS3]) && !(_buttons_prev & BTN_MASKS[BUT_PS3])){
 			if ((joystick1.joystickType() == JoystickController::PS3) &&
-			    (g_buttons & (BTN_MASKS[BUT_L1] | BTN_MASKS[BUT_R1]))) {
+			    (_buttons & (BTN_MASKS[BUT_L1] | BTN_MASKS[BUT_R1]))) {
 				// PS button just pressed and select button pressed act like PS4 share like...
 				// Note: you can use either R1 or L1 with the PS button, to work with Sony Move Navigation...
 				DBGSerial.print("\nPS3 Pairing Request");
@@ -295,16 +319,34 @@ void USBPSXController::ControlInput(void)
 				}
 			}
 		}
+#else
+		if ((_buttons & BTN_MASKS[BUT_PS3]) && !(_buttons_prev & BTN_MASKS[BUT_PS3])) {
+				if (!g_InControlState.fRobotOn) {
+					g_InControlState.fRobotOn = true;
+					fAdjustLegPositions = true;
+					g_WakeUpState = true;//Start the wakeup routine
+
+					//delay(10000);//Testing a bug that occour after powerup. Robot turns on and of and then on again. After programming first time it work fine. Then bug start after powerup
+					g_InControlState.ForceSlowCycleWait = 2;//Do this action slowly..
+					Serial.println("Robot Power On.....");
+				}
+				else {
+					controllerTurnRobotOff();
+					Serial.println("Robot Power Off.....");
+				}
+		}
+
+#endif
 
 		if (!g_WakeUpState) {	//Don't take care of controller inputs until the WakeUpState is over (false)
 
-			if ((g_buttons & BTN_MASKS[BUT_X]))  {     //Was L3
+			if ((_buttons & BTN_MASKS[BUT_X]))  {     //Was L3
 				MSound(1, 50, 2000);
 				_fDebugJoystick = !_fDebugJoystick;
 			}
 
 			// Cycle through modes...
-			if ((g_buttons & BTN_MASKS[BUT_TRI]) && !(g_buttons_prev & BTN_MASKS[BUT_TRI])) {
+			if ((_buttons & BTN_MASKS[BUT_TRI]) && !(_buttons_prev & BTN_MASKS[BUT_TRI])) {
 				if (++_controlMode >= MODECNT) {
 					_controlMode = WALKMODE;    // cycled back around...
 					MSound(2, 50, 2000, 50, 3000);
@@ -337,7 +379,8 @@ void USBPSXController::ControlInput(void)
 
 			//Stand up, sit down
 			//if (ButtonPressed(BUT_PS3)) {
-			if ((g_buttons & BTN_MASKS[BUT_HAT_DOWN]) && !(g_buttons_prev & BTN_MASKS[BUT_HAT_DOWN])) {	
+/*
+			if ((_buttons & BTN_MASKS[BUT_HAT_DOWN]) && !(_buttons_prev & BTN_MASKS[BUT_HAT_DOWN])) {	
 				if (_bodyYOffset > 0) {
 					_bodyYOffset = 0;
 					g_InhibitMovement = true;//Do not allow body movement and walking
@@ -359,7 +402,7 @@ void USBPSXController::ControlInput(void)
 			}
 			
 				
-			if ((g_buttons & BTN_MASKS[BUT_HAT_UP]) && !(g_buttons_prev & BTN_MASKS[BUT_HAT_UP])) {
+			if ((_buttons & BTN_MASKS[BUT_HAT_UP]) && !(_buttons_prev & BTN_MASKS[BUT_HAT_UP])) {
 				if (_bodyYOffset < 35) {
 					_bodyYOffset = 35;//Zenta a little higher for avoiding the out of range issue on a symmetric MKI PhanomX
 					g_InhibitMovement = false; //Allow body movement and walking
@@ -379,9 +422,29 @@ void USBPSXController::ControlInput(void)
 			tft.fillRect(tft.getCursorX(), tft.getCursorY(), tft.width(), 15, ST77XX_RED);
 #endif
 			}
+*/
 
+			//Stand up, sit down
+			if ((_buttons & BTN_MASKS[BUT_HAT_DOWN])) {
+				if (_bodyYOffset > 0) {
+					_bodyYOffset = 0;
+					g_InhibitMovement = true;//Do not allow body movement and walking
+					strcpy(g_InControlState.DataPack, "Resting position");
+				}
+				else {
+					_bodyYOffset = 80;//Zenta a little higher for avoiding the out of range issue on a symmetric MKI PhanomX
+					g_InhibitMovement = false; //Allow body movement and walking
+					strcpy(g_InControlState.DataPack, "Ready for action!");
+				}
+				g_InControlState.DataMode = 1;//We want to send a text message to the remote when changing state
+				g_InControlState.lWhenWeLastSetDatamode = millis();
+				g_InControlState.ForceSlowCycleWait = 2;//Do this action slowly..
 
-			if (g_buttons & BTN_MASKS[BUT_L1]) {
+				fAdjustLegPositions = false;//Zenta setting this to false removes a bug
+				_fDynamicLegXZLength = false;
+			}
+
+			if (_buttons & BTN_MASKS[BUT_L1]) {
 #ifdef USE_ST7789
 			tft.setCursor(0, TFT_Y_PWR);
 			tft.setTextSize(2);
@@ -429,8 +492,8 @@ void USBPSXController::ControlInput(void)
 #endif
 				//Check keypad inputs:
 				bool gait_changed = false;
-				if (ButtonPressed(BUT_R1)) {
-					g_InControlState.GaitType++;                    // Go to the next gait...
+				if ((_buttons & BTN_MASKS[BUT_HAT_LEFT])) {
+					g_InControlState.GaitType++;                    			  // Go to the next gait...
 					if (g_InControlState.GaitType < NumOfGaits) {                 // Make sure we did not exceed number of gaits...
 						MSound(1, 50, 2000);
 					} else {
@@ -438,17 +501,20 @@ void USBPSXController::ControlInput(void)
 						g_InControlState.GaitType = 0;
 					}
 					gait_changed = true;
+					Serial.printf("Go to next gait: %d\n", g_InControlState.GaitType );
 				}
 				if ((_keypad_button >= '1') && (_keypad_button <= '4')) {
 					g_InControlState.GaitType = _keypad_button - '1';
 					gait_changed = true;
 					MSound(1, 50, 2000);
+					Serial.printf("Gait Type #: %d\n", g_InControlState.GaitType );
 				}
 				if (gait_changed) {
 					//strcpy_P(g_InControlState.DataPack, (char*)pgm_read_word(&(Gait_table[Index])));
 					strcpy(g_InControlState.DataPack, (const char *)Gait_table[g_InControlState.GaitType]);
 					g_InControlState.DataMode = 1;
 					g_InControlState.lWhenWeLastSetDatamode = millis();
+					Serial.printf("Gait Selected: %s\n", (const char *)Gait_table[g_InControlState.GaitType]) ;
 				}
 
 				// Was 7 on Zentas....
@@ -457,12 +523,14 @@ void USBPSXController::ControlInput(void)
 						SmDiv = 1;
 						MSound(1, 50, 1000);
 						strcpy(g_InControlState.DataPack, "Raw and fast control");
+						Serial.printf("Gait Control: Raw and fast control\n");
 					} else {
 						SmDiv *= 3;
 						SmDiv += 7;
 						MSound(1, 50, 1500 + SmDiv * 20);
 						strcpy(g_InControlState.DataPack, "Smooth control");
 						if (SmDiv > 20) strcpy(g_InControlState.DataPack, "Super Smooth ctrl!");
+						Serial.printf("Gait Control: Smooth control\n");
 					}
 					g_InControlState.DataMode = 1;//We want to send a text message to the remote when changing state
 					g_InControlState.lWhenWeLastSetDatamode = millis();
@@ -480,10 +548,13 @@ void USBPSXController::ControlInput(void)
 					if (g_InControlState.BodyRotOffset.y == 0) {
 						g_InControlState.BodyRotOffset.y = 200;
 						strcpy(g_InControlState.DataPack, "YRotation offset =20");
+						Serial.printf("YRotation offset =20\n");
 					}
 					else {
 						g_InControlState.BodyRotOffset.y = 0;
 						strcpy(g_InControlState.DataPack, "YRotation offset = 0");
+						Serial.printf("YRotation offset = 0\n");
+
 					}
 					g_InControlState.DataMode = 1;//We want to send a text message to the remote when changing state
 					g_InControlState.lWhenWeLastSetDatamode = millis();
@@ -491,10 +562,10 @@ void USBPSXController::ControlInput(void)
 				}
 
 				//Switch between absolute and relative body translation and rotation. Using R1
-				if ((g_buttons & BTN_MASKS[BUT_R1]) && !(g_buttons_prev & BTN_MASKS[BUT_R1]))  {
+				if ((_buttons & BTN_MASKS[BUT_HAT_RIGHT]) && !(_buttons_prev & BTN_MASKS[BUT_HAT_RIGHT]))  {
 				}
 				//Switch between two balance methods
-				if ((g_buttons & BTN_MASKS[BUT_CIRC]) && !(g_buttons_prev & BTN_MASKS[BUT_CIRC]))  {
+				if ((_buttons & BTN_MASKS[BUT_CIRC]) && !(_buttons_prev & BTN_MASKS[BUT_CIRC]))  {
 					g_InControlState.BalanceMode++;
 					if (g_InControlState.BalanceMode < 2) {//toogle between two modes
 						MSound(1, 250, 1500);
@@ -521,7 +592,7 @@ void USBPSXController::ControlInput(void)
 
 				//Toogle normal start walking and delayed walk. Look around, then walk effect.
 				//Toogle dampen down speed. Might run this permanently?
-				if ((g_buttons & BTN_MASKS[BUT_SQ]) && !(g_buttons_prev & BTN_MASKS[BUT_SQ])) {
+				if ((_buttons & BTN_MASKS[BUT_SQ]) && !(_buttons_prev & BTN_MASKS[BUT_SQ])) {
 					g_InControlState.DampDwnSpeed = !g_InControlState.DampDwnSpeed;
 					if (g_InControlState.DampDwnSpeed) {
 						MSound(1, 250, 1500);
@@ -559,7 +630,7 @@ void USBPSXController::ControlInput(void)
 #ifdef OPT_SINGLELEG
 			if (_controlMode == SINGLELEGMODE) {
 				//Switch leg for single leg control
-				if ((g_buttons & BTN_MASKS[BUT_R1]) && !(g_buttons_prev & BTN_MASKS[BUT_R1]))  {
+				if ((_buttons & BTN_MASKS[BUT_R1]) && !(_buttons_prev & BTN_MASKS[BUT_R1]))  {
 
 					if (g_InControlState.SelectedLeg == 5) { //Only toogle between the two front legs
 						g_InControlState.SelectedLeg = 2;//Right Leg
@@ -591,7 +662,7 @@ void USBPSXController::ControlInput(void)
 #endif
 				}
 				// Hold single leg in place
-				if ((g_buttons & BTN_MASKS[BUT_R2]) && !(g_buttons_prev & BTN_MASKS[BUT_R2])) {
+				if ((_buttons & BTN_MASKS[BUT_R2]) && !(_buttons_prev & BTN_MASKS[BUT_R2])) {
 					MSound(1, 50, 2000);
 					if (!g_InControlState.fSLHold && !_wantToEndSLHold) {
 						_prevYposSLHold = g_InControlState.SLLeg.y; //Save the Ypos when holding it
@@ -639,10 +710,10 @@ void USBPSXController::ControlInput(void)
 				AdjustLegPositionsToBodyHeight();    // Put main workings into main program file
 
 			// Save away the buttons state as to not process the same press twice.
-			g_buttons_prev = g_buttons;
+			_buttons_prev = _buttons;
 		}
 		_ulLastMsgTime = millis();
-		g_buttons_prev = g_buttons;
+		_buttons_prev = _buttons;
 	}
 	else {
 		if (!g_WakeUpState) { //At the moment we can't turn off robot during the WakeUpState, is that a problem?
@@ -760,6 +831,8 @@ void USBPSXController::UpdateActiveDeviceInfo() {
 			}
 		}
 	}
+	
+#if defined(BLUETOOTH)
 	// Then Bluetooth devices
 	for (uint8_t i = 0; i < CNT_BTHIDDEVICES; i++) {
 		if (*bthiddrivers[i] != bthid_driver_active[i]) {
@@ -793,6 +866,7 @@ void USBPSXController::UpdateActiveDeviceInfo() {
 			}
 		}
 	}
+#endif
 }
 
 

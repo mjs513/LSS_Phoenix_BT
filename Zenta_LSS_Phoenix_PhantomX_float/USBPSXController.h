@@ -28,6 +28,8 @@
 #define _USBPSXController_H_
 
 #include "phoenix_float.h"
+#include <Wire.h>
+#include "SparkFun_Qwiic_Keypad_Arduino_Library.h" //Click here to get the library: http://librarymanager/All#SparkFun_keypad
 
 #if defined __has_include
 #  if __has_include (<SparkFun_Qwiic_Keypad_Arduino_Library.h>)
@@ -93,7 +95,7 @@ class USBPSXController : public InputController
 		static const uint32_t PS4_BTNS[];
 		static const uint32_t PS4_MAP_HAT_MAP[];
 		uint32_t const * BTN_MASKS = PS3_BTNS;
-
+		bool joystick_ps4_bt = false;
 
 		void controllerTurnRobotOff();
 		void UpdateActiveDeviceInfo();

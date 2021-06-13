@@ -138,19 +138,25 @@ void LSSServoDriver::setGaitConfig()
     myLSS.setMaxSpeed(legs[leg].coxa.max_speed, LSS_SetSession);
     myLSS.setGyre(legs[leg].coxa.gyre, LSS_SetSession);
     myLSS.setOriginOffset(legs[leg].coxa.offset, LSS_SetSession);
+	myLSS.setMotionControlEnabled(0);
+	myLSS.setAngularHoldingStiffness(-4);
 
     myLSS.setServoID(legs[leg].femur.id);
     if (myLSS.getStatus() == LSS_StatusUnknown) legs[leg].leg_found = false;
     myLSS.setMaxSpeed(legs[leg].femur.max_speed, LSS_SetSession);
     myLSS.setGyre(legs[leg].femur.gyre, LSS_SetSession);
     myLSS.setOriginOffset(legs[leg].femur.offset, LSS_SetSession);
-
+	myLSS.setMotionControlEnabled(0);
+	myLSS.setAngularHoldingStiffness(-4);
+	
     myLSS.setServoID(legs[leg].tibia.id);
     if (myLSS.getStatus() == LSS_StatusUnknown) legs[leg].leg_found = false;
     myLSS.setMaxSpeed(legs[leg].tibia.max_speed, LSS_SetSession);
     myLSS.setGyre(legs[leg].tibia.gyre, LSS_SetSession);
     myLSS.setOriginOffset(legs[leg].tibia.offset, LSS_SetSession);
-
+	myLSS.setMotionControlEnabled(0);
+	myLSS.setAngularHoldingStiffness(-4);
+	
     if (legs[leg].leg_found) Serial.printf("Servos for Leg %s **found**\n", legs[leg].leg_name);
     else Serial.printf("Servos for Leg %s **NOT found**\n", legs[leg].leg_name);
   }
@@ -377,18 +383,22 @@ void LSSServoDriver::CommitServoDriver(word wMoveTime)
 {
 	InputController::controller()->AllowControllerInterrupts(false);    // If on xbee on hserial tell hserial to not processess...
 	if (ServosEnabled) {
-		for (int i = 0; i < NUMSERVOS; i++) {
-			if (g_cur_servo_pos[i] != g_goal_servo_pos[i]) {
-				g_cur_servo_pos[i] = g_goal_servo_pos[i];
-				// Set the id
-				int servo_id = pgm_read_byte(&cPinTable[i]);
-				myLSS.setServoID(servo_id);
-				myLSS.moveT(g_goal_servo_pos[i] * 10, wMoveTime);
+		if (use_servos_timed_moves) {
+			for (int i = 0; i < NUMSERVOS; i++) {
+				if (g_cur_servo_pos[i] != g_goal_servo_pos[i]) {
+					g_cur_servo_pos[i] = g_goal_servo_pos[i];
+					// Set the id
+					int servo_id = pgm_read_byte(&cPinTable[i]);
+					myLSS.setServoID(servo_id);
+					myLSS.moveT(g_goal_servo_pos[i] * 10, wMoveTime);
+				}
 			}
+		} else {
+			TMSetupMove(wMoveTime);
+			if (g_fDebugOutput || servo_debug) TMPrintDebugInfo();
+			TMStep(true); // force the first step..
 		}
-		delay(250);
-	}
-	else {
+	} else {
 		// Rear middle front
 		//DBGSerial.println("Servo positions shown by leg joints\n(Rear)");
 		//DBGSerial.println("    T     F     C |     C     F     T");
@@ -604,6 +614,40 @@ boolean LSSServoDriver::ProcessTerminalCommand(byte* psz, byte bLen)
 	if ((*psz == 's') || (*psz == 'S')) {
 		TCTrackServos();
 	}
+	else if ((bLen == 1) && ((*psz == 'a') || (*psz == 'A'))) {
+		use_servos_timed_moves = !use_servos_timed_moves;
+		if (use_servos_timed_moves){
+			DBGSerial.println(F("Use Servo moveT"));
+		}
+		else {
+			DBGSerial.println(F("Use Software Interplation"));
+		}
+		TMConfigureServos();
+		return true;
+	}
+	
+	else if ((bLen == 1) && ((*psz == 'l') || (*psz == 'L'))) {
+				servo_debug = !servo_debug;
+		if (servo_debug){
+			DBGSerial.println(F("LSS Debug output enabled"));
+		}
+		else {
+			DBGSerial.println(F("LSS Debug output disabled"));
+		}
+		return true;
+	}
+	else if ((*psz == 'f') || (*psz == 'F')) {
+		uint16_t fps = 0;
+		psz++;
+		while (*psz == ' ') psz++; // ignore any blanks.
+		while ((*psz >= '0') && (*psz <= '9')) {
+			fps = fps * 10 + *psz++ - '0';
+		}
+		if (fps == 0) fps = DEFAULT_FRAMES_PER_SECOND;
+		tmCycleTime = 1000000 / fps;	
+		DBGSerial.printf("Set FPS to: %u Cycle time\n", fps, tmCycleTime);
+	}
+
 
 
 #ifdef OPT_FIND_SERVO_OFFSETS
@@ -808,12 +852,16 @@ void LSSServoDriver::FindServoOffsets()
 
 			myLSS.setServoID(servo_id);
 			myLSS.moveT(asOffsets[sSN], 250);
+			//myLSS.move(asOffsets[sSN]);
 			delay(250);
 			myLSS.moveT(asOffsets[sSN] + 100, 250);
+			//myLSS.move(asOffsets[sSN] + 100);
 			delay(250);
 			myLSS.moveT(asOffsets[sSN] - 100, 250);
+			//myLSS.move(asOffsets[sSN] - 100);
 			delay(250);
 			myLSS.moveT(asOffsets[sSN], 250);
+			//myLSS.move(asOffsets[sSN]);
 			delay(250);
 			fNew = false;
 		}
@@ -847,6 +895,7 @@ void LSSServoDriver::FindServoOffsets()
 					Serial.println(asOffsets[sSN], DEC);
 
 					myLSS.moveT(asOffsets[sSN], 100);
+					//myLSS.move(asOffsets[sSN]);
 				}
 				else if ((data >= '0') && (data <= '5')) {
 					// direct enter of which servo to change
@@ -933,6 +982,118 @@ void LSSServoDriver::WakeUpRoutine(void){
 //Need to work on this function!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	g_WakeUpState = false;
 }
+
+//=============================================================================
+// Do our own timed moves support functions.
+//=============================================================================
+
+void LSSServoDriver::TMReset() {
+	tmServoCount = 0;
+}
+
+// Add a servo to the list.
+uint8_t LSSServoDriver::TMAddID(uint8_t id) {
+	tmServos[tmServoCount].id = id;
+	tmServos[tmServoCount].target_pos = 0;
+	tmServos[tmServoCount].starting_pos = 0;
+	tmServoCount++;
+	return tmServoCount - 1;
+}
+
+void LSSServoDriver::TMInitWithCurrentservoPositions() {
+	for (uint8_t servo = 0; servo < tmServoCount; servo++) {
+		myLSS.setServoID(tmServos[servo].id);
+		myLSS.setMotionControlEnabled(0);
+		tmServos[servo].starting_pos = myLSS.getPosition();
+		tmServos[servo].target_pos = tmServos[servo].starting_pos;
+	}
+}
+void LSSServoDriver::TMConfigureServos() {
+	int em_mode = use_servos_timed_moves? 1 : 0;
+	DBGSerial.printf("Set Servo EM=%u\n", em_mode);
+	for (uint8_t servo = 0; servo < tmServoCount; servo++) {
+		myLSS.setServoID(tmServos[servo].id);
+		myLSS.setMotionControlEnabled(em_mode);
+	}
+}
+
+bool LSSServoDriver::TMSetTargetByID(uint8_t id, int16_t target) {
+	for (uint8_t servo = 0; servo < tmServoCount; servo++) {
+		if (id == tmServos[servo].id) {
+			TMSetTargetByIndex(servo, target);
+			return true;
+		}
+	}
+	return false;
+}
+
+void LSSServoDriver::TMSetTargetByIndex(uint8_t index, int16_t target) {
+	tmServos[index].starting_pos = tmServos[index].target_pos; // set source as last target
+	tmServos[index].target_pos = target;
+}
+void LSSServoDriver::TMSetupMove(uint32_t move_time) {
+	// BUGBUG should we output all servos every cycle?
+	// start off only when they move.
+	tmMovetime = move_time * 1000; // convert to us
+	tmCyclesLeft = (tmMovetime + tmCycleTime / 2) / tmCycleTime;
+	for (uint8_t servo = 0; servo < tmServoCount; servo++) {
+		myLSS.setServoID(tmServos[servo].id);
+		if (tmSetupServos) myLSS.setMotionControlEnabled(0);
+		if (tmServos[servo].starting_pos == -1) tmServos[servo].starting_pos = myLSS.getPosition();
+		tmServos[servo].pos = tmServos[servo].starting_pos;
+		tmServos[servo].cycle_delta = ((tmServos[servo].target_pos - tmServos[servo].starting_pos)); // set it first to get into floating point
+		tmServos[servo].cycle_delta /= tmCyclesLeft;
+	}
+	tmSetupServos = false;
+	tmTimer = 0;
+
+}
+
+int  LSSServoDriver::TMStep(bool wait) {
+	if (!tmCyclesLeft) return 0;
+
+	// BUGBUG not processing wait yet... but normally
+	// can set false so can return between steps to do other stuff.
+	//if (!wait && ((tmCycleTime - tmTimer) > tmMinNotwaitTime)) return -1; //
+	while (tmTimer < tmCycleTime) ;
+	// how many cycles.
+	for (uint8_t servo = 0; servo < tmServoCount; servo++) {
+		if (tmServos[servo].cycle_delta) {
+
+			int cur_pos = tmServos[servo].pos;
+			tmServos[servo].pos += tmServos[servo].cycle_delta;
+			int next_pos = tmServos[servo].pos;
+			if (tmCyclesLeft == 1) next_pos = tmServos[servo].target_pos;
+			else {
+				if (tmServos[servo].cycle_delta < 0) {
+					if (next_pos < tmServos[servo].target_pos) next_pos = tmServos[servo].target_pos;
+				} else if (next_pos > tmServos[servo].target_pos) next_pos = tmServos[servo].target_pos;
+			}
+			if (next_pos != cur_pos) {
+				myLSS.setServoID(tmServos[servo].id);
+				myLSS.move(next_pos);
+				if (next_pos == tmServos[servo].target_pos) tmServos[servo].cycle_delta = 0; // servo done
+			}
+		}
+	}
+	tmCyclesLeft--;
+	tmTimer -= tmCycleTime;
+	return tmCyclesLeft ? 1 : 0; //
+}
+
+void LSSServoDriver::TMPrintDebugInfo() {
+#ifdef DBGSerial
+  DBGSerial.println("*** TM debug info");
+  DBGSerial.printf("Move Time:%u Cyle time:%u cycles:%u\n", tmMovetime, tmCycleTime, tmCyclesLeft);
+  DBGSerial.println("ID\t Start\t End\tCyle Delta");
+  for (uint8_t servo = 0; servo < tmServoCount; servo++) {
+    DBGSerial.printf("  %u\t%d\t%d\t%f\n", tmServos[servo].id, tmServos[servo].starting_pos, tmServos[servo].target_pos, tmServos[servo].cycle_delta);
+  }
+#endif  
+}
+
+
+
 
 //==============================================================================
 //	FindServoOffsets - Find the zero points for each of our servos... 
