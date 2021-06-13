@@ -169,6 +169,9 @@ void LSSServoDriver::Init(void) {
 	// First lets get the actual servo positions for all of our servos...
 	//  pinMode(0, OUTPUT);
 	LSS::initBus(LSS_SERIAL_PORT, LSS_BAUD);
+  #ifdef LSS_SupportsSettingTimeouts
+  LSS::setReadTimeouts(20, 5); // define we will wait for 20ms for response to start and 5ms for in message characters
+  #endif
 
 	g_fServosFree = true;
 #ifdef DBGSerial
@@ -178,6 +181,7 @@ void LSSServoDriver::Init(void) {
 	for (int i = 0; i < NUMSERVOS; i++) {
 		// Set the id
 		int servo_id = pgm_read_byte(&cPinTable[i]);
+		uint8_t index = TMAddID(servo_id); // bugbug assuming some position stuff...
 		myLSS.setServoID(servo_id);
 
 		// Now try to get it's position
@@ -189,6 +193,7 @@ void LSSServoDriver::Init(void) {
 		pos = myLSS.getPosition();
 		if (myLSS.getLastCommStatus() == LSS_CommStatus_ReadSuccess) {
 			DBGSerial.printf(" %d\n", pos);
+			TMSetTargetByIndex(index, pos);
 		}
 		else {
 			DBGSerial.println(" not found");
@@ -284,14 +289,6 @@ word LSSServoDriver::GetBatteryVoltage(void) {
 void LSSServoDriver::BeginServoUpdate(void)    // Start the update
 {
 	MakeSureServosAreOn();
-#if 0
-	if (ServosEnabled) {
-		// If we are trying our own Servo control need to save away the new positions...
-		for (byte i = 0; i < NUMSERVOS; i++) {
-			g_cur_servo_pos[i] = g_goal_servo_pos[i];
-		}
-	}
-#endif
 
 }
 
@@ -306,6 +303,13 @@ void LSSServoDriver::OutputServoInfoForLeg(byte LegIndex, short sCoxaAngle1, sho
 #endif
 {
 	// Save away the new positions...
+	// Sort of duplicate stuff now... May clean up.
+	TMSetTargetByIndex(FIRSTCOXAPIN + LegIndex, sCoxaAngle1);  // What order should we store these values?
+	TMSetTargetByIndex(FIRSTFEMURPIN + LegIndex, sFemurAngle1);
+	TMSetTargetByIndex(FIRSTTIBIAPIN + LegIndex, sTibiaAngle1);
+#ifdef c4DOF
+	TMSetTargetByIndex(FIRSTTARSPIN + LegIndex, sTarsAngle);
+#endif
 	g_goal_servo_pos[FIRSTCOXAPIN + LegIndex] = sCoxaAngle1;  // What order should we store these values?
 	g_goal_servo_pos[FIRSTFEMURPIN + LegIndex] = sFemurAngle1;
 	g_goal_servo_pos[FIRSTTIBIAPIN + LegIndex] = sTibiaAngle1;
@@ -551,6 +555,9 @@ void LSSServoDriver::ShowTerminalCommandList(void)
 	DBGSerial.println(F("T - Test Servos"));
 	DBGSerial.println(F("P - Servo Positions"));
 	DBGSerial.println(F("S - Track Servos"));
+	DBGSerial.println(F("A - Toggle LSS speed control"));
+	DBGSerial.println(F("L - Toggle LSS Servo Debug output"));
+	DBGSerial.println(F("F <FPS> - Set FPS for Interpolation mode"));
 #ifdef OPT_PYPOSE
 	DBGSerial.println(F("P<DL PC> - Pypose"));
 #endif
