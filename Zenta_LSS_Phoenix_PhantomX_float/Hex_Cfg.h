@@ -54,7 +54,7 @@ extern ST7789_t3 tft;
 #define LYNXMOTION
 
 #ifdef LYNXMOTION
-#define ServoRes 4096
+#define ServoRes 1800 // goes +- degrees
 #define VoltRef 1014
 //MIN MAX control definitions:
 #define MaxLegLiftHeight 200
@@ -611,7 +611,7 @@ extern ST7789_t3 tft;
 #define cHexInitXZ   131
 #define CHexInitXZCos60  73    // COS(56) = .707
 #define CHexInitXZSin60  109    // sin(56) = .707
-#define CHexInitY  116 //30
+#define CHexInitY  30 //116 //30
 #define cHexGroundPos 25
 #endif
 

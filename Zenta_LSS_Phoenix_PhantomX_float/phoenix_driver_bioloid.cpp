@@ -33,7 +33,6 @@
 #define VOLTAGE_TIME_TO_ERROR          3000    // Error out if no valid item is returned in 3 seconds...
 
 
-
 // Current positions in AX coordinates
 int16_t      g_cur_servo_pos[NUMSERVOS];
 int16_t      g_goal_servo_pos[NUMSERVOS];
@@ -82,6 +81,13 @@ static const byte cPinTable[] = {
 // Not sure yet if I will use the controller class or not, but...
 LSS myLSS = LSS(0);
 boolean g_fServosFree;    // Are the servos in a free state?
+
+// BUGBUG: // tired of some of the wrappers... create quick and dirty
+inline int32_t GetServoPosition(uint8_t servo) {
+		myLSS.setServoID(servo);
+		return myLSS.getPosition();
+}
+
 
 
 //=============================================================================
@@ -985,9 +991,77 @@ void LSSServoDriver::FindServoOffsets()
 //==============================================================================
 // WakeUpRoutine - Wake up robot in a friendly way
 //==============================================================================
+#define DEBUG_WakeUp_Pos
 void LSSServoDriver::WakeUpRoutine(void){
-//Need to work on this function!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	g_WakeUpState = false;
+	byte LegIndex;
+	int CurrentCoxaPos;//was word, changed to integer to prevent since faulty reading return -1
+	int CurrentFemurPos;
+	int CurrentTibiaPos;
+	boolean PosOK = true;
+#define PosMargin 12	//we must wait if the difference between current ServoPos and IKpos is larger than this margin (12 is just over one deg in difference for MX servos)
+	for (LegIndex = 0; LegIndex < CNT_LEGS; LegIndex++) {//for (LegIndex = CNT_LEGS / 2; LegIndex < CNT_LEGS; LegIndex++) {//Left legs
+
+		CurrentCoxaPos = GetServoPosition(cPinTable[FIRSTCOXAPIN + LegIndex]);
+		CurrentFemurPos = GetServoPosition(cPinTable[FIRSTFEMURPIN + LegIndex]);
+		CurrentTibiaPos = GetServoPosition(cPinTable[FIRSTTIBIAPIN + LegIndex]);
+
+		
+		if ((abs((int)CurrentCoxaPos - (int)(CoxaAngle[LegIndex] ))> PosMargin) && (CurrentCoxaPos <= ServoRes) && (CurrentCoxaPos >= -ServoRes)) {
+			PosOK = false;
+		}
+		if ((abs((int)CurrentFemurPos - (int)(FemurAngle[LegIndex] ))> PosMargin) && (CurrentFemurPos <= ServoRes) && (CurrentFemurPos >= -ServoRes)) {
+			PosOK = false;
+		}
+		if ((abs((int)CurrentTibiaPos - (int)(TibiaAngle[LegIndex] ))> PosMargin) && (CurrentTibiaPos <= ServoRes) && (CurrentTibiaPos >= -ServoRes)) {
+			PosOK = false;
+		}
+#ifdef DEBUG_WakeUp_Pos
+		DBGSerial.print(CurrentCoxaPos, DEC);
+		DBGSerial.print("-");
+		DBGSerial.print((int)(CoxaAngle[LegIndex]), DEC);//must invert Right legs
+		DBGSerial.print(" ");
+		DBGSerial.print(CurrentFemurPos, DEC);
+		DBGSerial.print("-");
+		DBGSerial.print((int)(FemurAngle[LegIndex]), DEC);
+		DBGSerial.print(" ");
+		DBGSerial.print(CurrentTibiaPos, DEC);
+		DBGSerial.print("-");
+		DBGSerial.print((int)(TibiaAngle[LegIndex]), DEC);
+		DBGSerial.print(" _ ");
+#endif
+		delay(25);
+	}
+	//g_InputController.AllowControllerInterrupts(true);
+	DBGSerial.println(PosOK,DEC);
+	if ((millis() - lWakeUpStartTime)>6000) {
+		MSound(1, 150, 1500);// Make some sound if it takes more than 6 second to get into wakeup position, something is probably wrong..
+	}
+	if (PosOK){// All servos are in position, ready for turning on full torque!
+		//g_InputController.AllowControllerInterrupts(false);
+		
+		g_WakeUpState = false;
+		myLSS.setServoID(LSS_BroadcastID);
+#ifdef SafetyMode
+		myLSS.hold();
+		delay(500); //Waiting half a second test bug bug
+		LSS::genericWrite(LSS_BroadcastID, "MMD", 300);  // Reduced Torque can be in range 255 to 1023
+#else
+		myLSS.hold();
+		delay(500); //Waiting half a second test bug bug
+		LSS::genericWrite(LSS_BroadcastID, "MMD", 1023);  // Full torque
+#endif
+		InputController::controller()->AllowControllerInterrupts(true);    // Ok for hserial again...
+		MSound(1, 80, 2000);
+		g_InControlState.ForceSlowCycleWait = 2;//Get ready slowly
+
+		strcpy(g_InControlState.DataPack, "Ready!");
+		g_InControlState.DataMode = 1;//We want to send a text message to the remote when changing state
+		g_InControlState.lWhenWeLastSetDatamode = millis();
+
+		for (LegIndex = 0; LegIndex < CNT_LEGS; LegIndex++) {
+			cInitPosY[LegIndex] = cHexGroundPos;//Lower the legs to ground
+		}
+	}
 }
 
 //=============================================================================
