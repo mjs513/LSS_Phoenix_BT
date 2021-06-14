@@ -1048,12 +1048,6 @@ void loop(void)
     // Allow the Servo driver to do stuff durint our idle time
     ServoDriver::driver()->IdleTime();
 
-    // We also have a simple debug monitor that allows us to 
-    // check things. call it here..
-#ifdef OPT_TERMINAL_MONITOR  
-    if (TerminalMonitor())
-      return;           
-#endif
     delay(20);  // give a pause between times we call if nothing is happening
 		
   }
@@ -1065,6 +1059,12 @@ void loop(void)
     g_InControlState.fPrev_RobotOn = 1;
   else
     g_InControlState.fPrev_RobotOn = 0;
+
+  // We also have a simple debug monitor that allows us to 
+  // check things. call it here..
+#ifdef OPT_TERMINAL_MONITOR  
+  TerminalMonitor();
+#endif
 }
 
 
@@ -1085,14 +1085,14 @@ void StartUpdateServos()
         cTibiaInv[LegIndex]? -TibiaAngle[LegIndex] : TibiaAngle[LegIndex], 
         cTarsInv[LegIndex]? -TarsAngle[LegIndex] : TarsAngle[LegIndex]);
 #else
-			CoxaAngle[LegIndex] = (cCoxaInv[LegIndex] ? -CoxaAngle[LegIndex] : CoxaAngle[LegIndex]);
+			/*CoxaAngle[LegIndex] = (cCoxaInv[LegIndex] ? -CoxaAngle[LegIndex] : CoxaAngle[LegIndex]);
 			FemurAngle[LegIndex] = (cFemurInv[LegIndex] ? -FemurAngle[LegIndex] : FemurAngle[LegIndex]);
 			TibiaAngle[LegIndex] = (cTibiaInv[LegIndex] ? -TibiaAngle[LegIndex] : TibiaAngle[LegIndex]);
-			ServoDriver::driver()->OutputServoInfoForLeg(LegIndex, CoxaAngle[LegIndex], FemurAngle[LegIndex], TibiaAngle[LegIndex]);
-    /*ServoDriver::driver()->OutputServoInfoForLeg(LegIndex, 
+			ServoDriver::driver()->OutputServoInfoForLeg(LegIndex, CoxaAngle[LegIndex], FemurAngle[LegIndex], TibiaAngle[LegIndex]); */
+    ServoDriver::driver()->OutputServoInfoForLeg(LegIndex, 
         cCoxaInv[LegIndex]? -CoxaAngle[LegIndex] : CoxaAngle[LegIndex], 
         cFemurInv[LegIndex]? -FemurAngle[LegIndex] : FemurAngle[LegIndex], 
-        cTibiaInv[LegIndex]? -TibiaAngle[LegIndex] : TibiaAngle[LegIndex]);*/
+        cTibiaInv[LegIndex]? -TibiaAngle[LegIndex] : TibiaAngle[LegIndex]);
 #endif      
   }
 #ifdef cTurretRotPin
@@ -2639,7 +2639,7 @@ void AdjustLegPositionsToBodyHeight()
 void SoundNoTimer(unsigned long duration,  unsigned int frequency)
 {
 
-#if !(defined __MK20DX256__ || defined __MK64FX512__ || defined __MK66FX1M0__)
+#if ! defined(KINETISK) && ! defined(__IMXRT1062__)
 
 #ifdef __AVR__
   volatile uint8_t *pin_port;
