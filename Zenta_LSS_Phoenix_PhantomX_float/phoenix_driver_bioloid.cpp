@@ -322,6 +322,7 @@ void LSSServoDriver::OutputServoInfoForLeg(byte LegIndex, short sCoxaAngle1, sho
 #ifdef c4DOF
 	g_awGoalAXTarsPos[FIRSTTARSPIN + LegIndex] = sTarsAngle1;
 #endif
+
 #ifdef DEBUG_SERVOS
 	if (g_fDebugOutput) {
 		DBGSerial.print(LegIndex, DEC);
@@ -540,6 +541,8 @@ void LSSServoDriver::MakeSureServosAreOn(void)
 //==============================================================================
 void  LSSServoDriver::BackgroundProcess(void)
 {
+	if (!use_servos_timed_moves)
+		TMStep(false); // force the first step..
 #ifdef cTurnOffVol          // only do if we a turn off voltage is defined
 #ifndef cVoltagePin         // and we are not doing AtoD type of conversion...
 	if (iTimeToNextInterpolate > VOLTAGE_MIN_TIME_UNTIL_NEXT_INTERPOLATE)      // At least 4ms until next interpolation.  See how this works...
@@ -991,7 +994,7 @@ void LSSServoDriver::FindServoOffsets()
 //==============================================================================
 // WakeUpRoutine - Wake up robot in a friendly way
 //==============================================================================
-#define DEBUG_WakeUp_Pos
+//#define DEBUG_WakeUp_Pos
 void LSSServoDriver::WakeUpRoutine(void){
 	byte LegIndex;
 	int CurrentCoxaPos;//was word, changed to integer to prevent since faulty reading return -1
@@ -999,7 +1002,7 @@ void LSSServoDriver::WakeUpRoutine(void){
 	int CurrentTibiaPos;
 	boolean PosOK = true;
 #define PosMargin 12	//we must wait if the difference between current ServoPos and IKpos is larger than this margin (12 is just over one deg in difference for MX servos)
-	for (LegIndex = 0; LegIndex < CNT_LEGS; LegIndex++) {//for (LegIndex = CNT_LEGS / 2; LegIndex < CNT_LEGS; LegIndex++) {//Left legs
+/*	for (LegIndex = 0; LegIndex < CNT_LEGS; LegIndex++) {//for (LegIndex = CNT_LEGS / 2; LegIndex < CNT_LEGS; LegIndex++) {//Left legs
 
 		CurrentCoxaPos = GetServoPosition(cPinTable[FIRSTCOXAPIN + LegIndex]);
 		CurrentFemurPos = GetServoPosition(cPinTable[FIRSTFEMURPIN + LegIndex]);
@@ -1038,7 +1041,7 @@ void LSSServoDriver::WakeUpRoutine(void){
 	}
 	if (PosOK){// All servos are in position, ready for turning on full torque!
 		//g_InputController.AllowControllerInterrupts(false);
-		
+
 		g_WakeUpState = false;
 		myLSS.setServoID(LSS_BroadcastID);
 #ifdef SafetyMode
@@ -1062,6 +1065,8 @@ void LSSServoDriver::WakeUpRoutine(void){
 			cInitPosY[LegIndex] = cHexGroundPos;//Lower the legs to ground
 		}
 	}
+ */
+    g_WakeUpState = false;
 }
 
 //=============================================================================
@@ -1112,6 +1117,7 @@ void LSSServoDriver::TMSetTargetByIndex(uint8_t index, int16_t target) {
 	tmServos[index].starting_pos = tmServos[index].target_pos; // set source as last target
 	tmServos[index].target_pos = target;
 }
+
 void LSSServoDriver::TMSetupMove(uint32_t move_time) {
 	// BUGBUG should we output all servos every cycle?
 	// start off only when they move.
@@ -1152,7 +1158,7 @@ int  LSSServoDriver::TMStep(bool wait) {
 			}
 			if (next_pos != cur_pos) {
 				myLSS.setServoID(tmServos[servo].id);
-				myLSS.move(next_pos);
+				myLSS.move(next_pos * 10);
 				if (next_pos == tmServos[servo].target_pos) tmServos[servo].cycle_delta = 0; // servo done
 			}
 		}

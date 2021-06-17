@@ -611,7 +611,7 @@ extern ST7789_t3 tft;
 #define cHexInitXZ   131
 #define CHexInitXZCos60  73    // COS(56) = .707
 #define CHexInitXZSin60  109    // sin(56) = .707
-#define CHexInitY  30 //116 //30
+#define CHexInitY  14 //116 //30
 #define cHexGroundPos 25
 #endif
 

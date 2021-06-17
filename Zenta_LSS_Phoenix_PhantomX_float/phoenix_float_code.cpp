@@ -1085,14 +1085,16 @@ void StartUpdateServos()
         cTibiaInv[LegIndex]? -TibiaAngle[LegIndex] : TibiaAngle[LegIndex], 
         cTarsInv[LegIndex]? -TarsAngle[LegIndex] : TarsAngle[LegIndex]);
 #else
-			/*CoxaAngle[LegIndex] = (cCoxaInv[LegIndex] ? -CoxaAngle[LegIndex] : CoxaAngle[LegIndex]);
+/*			CoxaAngle[LegIndex] = (cCoxaInv[LegIndex] ? -CoxaAngle[LegIndex] : CoxaAngle[LegIndex]);
 			FemurAngle[LegIndex] = (cFemurInv[LegIndex] ? -FemurAngle[LegIndex] : FemurAngle[LegIndex]);
 			TibiaAngle[LegIndex] = (cTibiaInv[LegIndex] ? -TibiaAngle[LegIndex] : TibiaAngle[LegIndex]);
-			ServoDriver::driver()->OutputServoInfoForLeg(LegIndex, CoxaAngle[LegIndex], FemurAngle[LegIndex], TibiaAngle[LegIndex]); */
+			ServoDriver::driver()->OutputServoInfoForLeg(LegIndex, CoxaAngle[LegIndex], FemurAngle[LegIndex], TibiaAngle[LegIndex]);
+*/
     ServoDriver::driver()->OutputServoInfoForLeg(LegIndex, 
         cCoxaInv[LegIndex]? -CoxaAngle[LegIndex] : CoxaAngle[LegIndex], 
         cFemurInv[LegIndex]? -FemurAngle[LegIndex] : FemurAngle[LegIndex], 
         cTibiaInv[LegIndex]? -TibiaAngle[LegIndex] : TibiaAngle[LegIndex]);
+
 #endif      
   }
 #ifdef cTurretRotPin
@@ -2639,7 +2641,7 @@ void AdjustLegPositionsToBodyHeight()
 void SoundNoTimer(unsigned long duration,  unsigned int frequency)
 {
 
-#if ! defined(KINETISK) && ! defined(__IMXRT1062__)
+#if !(defined(KINETISK) || defined(__IMXRT1062__))
 
 #ifdef __AVR__
   volatile uint8_t *pin_port;
