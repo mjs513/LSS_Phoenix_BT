@@ -25,7 +25,7 @@
 #define USELSSCONFIG
 
 #define LSS_SERIAL_PORT     Serial1
-#define LSS_BAUD            921600
+#define LSS_BAUD            500000
 // Global defines to control which configuration we are using.  Note: Only define one of these...
 // 
 // Which type of control(s) do you want to compile in

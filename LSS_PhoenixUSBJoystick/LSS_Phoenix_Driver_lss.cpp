@@ -178,7 +178,7 @@ void ServoDriver::setGaitConfig()
 		myLSS.setMotionControlEnabled(0);
 		myLSS.setAngularHoldingStiffness(4, LSS_SetSession);
 		myLSS.setAngularStiffness(-4, LSS_SetSession);
-		myLSS.setFPC(5, LSS_SetSession);
+		myLSS.setFilterPositionCount(5, LSS_SetSession);
     		
 		myLSS.setServoID(legs[leg].femur.id);
 #ifndef USELSSCONFIG
@@ -190,7 +190,7 @@ void ServoDriver::setGaitConfig()
 		myLSS.setMotionControlEnabled(0);
 		myLSS.setAngularHoldingStiffness(4, LSS_SetSession);
 		myLSS.setAngularStiffness(-4, LSS_SetSession);
-		myLSS.setFPC(5, LSS_SetSession);
+		myLSS.setFilterPositionCount(5, LSS_SetSession);
     
 		myLSS.setServoID(legs[leg].tibia.id);
 #ifndef USELSSCONFIG
@@ -202,7 +202,7 @@ void ServoDriver::setGaitConfig()
 		myLSS.setMotionControlEnabled(0);
 		myLSS.setAngularHoldingStiffness(4, LSS_SetSession);
 		myLSS.setAngularStiffness(-4, LSS_SetSession);
-		myLSS.setFPC(5, LSS_SetSession);
+		myLSS.setFilterPositionCount(5, LSS_SetSession);
     
 #ifndef USELSSCONFIG
 		if (legs[leg].leg_found) Serial.printf("Servos for Leg %s **found**\n", legs[leg].leg_name);
