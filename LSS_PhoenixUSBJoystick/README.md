@@ -18,7 +18,7 @@ O | Enter Servo offset mode
 C | clear Servo Offsets
   
 ## Servo Offset Mode
-After 'O' command is enter you will see on the screen a brief description and the current settings for the servos:
+After 'O' command is enter you will see on the screen a brief description and the current settings for the servos and the sub menu:
   
  Update Servos Offsets and their rotation direction(Gyre)
  Current Servo Information
@@ -52,6 +52,7 @@ Servo: LF Tibia(5) | Pos:0 | O:0:0 | G:0:0 | EMC:0 | FPC:0:0 | AS:0:0 | AH:0:0 |
     m - manually move mode to get close
  Servo: RR Coxa(8)
   
+ NOTE: The numbering is based on the index for the coxa, femur, and tiberia.  For example if you want to change the RF Femur you would enter 'F 2' since its the 3 servo in the femur list and the indexing starts at 0
   
 ## Joystick Commands
 
