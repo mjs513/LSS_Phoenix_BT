@@ -24,10 +24,10 @@ servo Offsets as well as the Gyre (rotation direction)
 
 It will initially print out current settings as well as
 several other servo settings.  It currently then outputs:
+```
 The Goal is to align the top two servo pivots (Coxa and Femur) to be parallel to ground
 And the Tibia should be at a right angle to the ground
 
-```
   Enter $-Exit, +- changes, *-change servo
     0-n Chooses a leg, C-Coxa, F-Femur, T-Tibia
     m - manually move mode to get close
