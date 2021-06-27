@@ -16,7 +16,43 @@ F <FPS> | Set FPS for Interpolation mode
 S | Track Servos
 O | Enter Servo offset mode
 C | clear Servo Offsets
+  
+## Servo Offset Mode
+After 'O' command is enter you will see on the screen a brief description and the current settings for the servos:
+  
+ Update Servos Offsets and their rotation direction(Gyre)
+ Current Servo Information
+  
+Servo |  Position | Offset | Gyre | EM | Filter | Ang. Stiffness | Ang Hold Stiffness | Ang Range
+------------ | ------------- | ------------ | ------------- | ------------ | ------------- | ------------ | ------------- | ------------ 
+Servo: RR Coxa(8) | Pos:0 | O:0:0 | G:0:0 | EMC:0 | FPC:0:0 | AS:0:0 | AH:0:0 | AR:0:0
+Servo: RM Coxa(14) | Pos:0 | O:0:0 | G:0:0 | EMC:0 | FPC:0:0 | AS:0:0 | AH:0:0 | AR:0:0
+Servo: RF Coxa(2) | Pos:0 | O:0:0 | G:0:0 | EMC:0 | FPC:0:0 | AS:0:0 | AH:0:0 | AR:0:0
+Servo: LR Coxa(7) | Pos:0 | O:0:0 | G:0:0 | EMC:0 | FPC:0:0 | AS:0:0 | AH:0:0 | AR:0:0
+Servo: LM Coxa(13) | Pos:0 | O:0:0 | G:0:0 | EMC:0 | FPC:0:0 | AS:0:0 | AH:0:0 | AR:0:0
+Servo: LF Coxa(1) | Pos:0 | O:0:0 | G:0:0 | EMC:0 | FPC:0:0 | AS:0:0 | AH:0:0 | AR:0:0
+Servo: RR Femur(10) | Pos:0 | O:0:0 | G:0:0 | EMC:0 | FPC:0:0 | AS:0:0 | AH:0:0 | AR:0:0
+Servo: RM Femur(16) | Pos:0 | O:0:0 | G:0:0 | EMC:0 | FPC:0:0 | AS:0:0 | AH:0:0 | AR:0:0
+Servo: RF Femur(4) | Pos:0 | O:0:0 | G:0:0 | EMC:0 | FPC:0:0 | AS:0:0 | AH:0:0 | AR:0:0
+Servo: LR Femur(9) | Pos:0 | O:0:0 | G:0:0 | EMC:0 | FPC:0:0 | AS:0:0 | AH:0:0 | AR:0:0
+Servo: LM Femur(15) | Pos:0 | O:0:0 | G:0:0 | EMC:0 | FPC:0:0 | AS:0:0 | AH:0:0 | AR:0:0
+Servo: LF Femur(3) | Pos:0 | O:0:0 | G:0:0 | EMC:0 | FPC:0:0 | AS:0:0 | AH:0:0 | AR:0:0
+Servo: RR Tibia(12) | Pos:0 | O:0:0 | G:0:0 | EMC:0 | FPC:0:0 | AS:0:0 | AH:0:0 | AR:0:0
+Servo: RM Tibia(18) | Pos:0 | O:0:0 | G:0:0 | EMC:0 | FPC:0:0 | AS:0:0 | AH:0:0 | AR:0:0
+Servo: RF Tibia(6) | Pos:0 | O:0:0 | G:0:0 | EMC:0 | FPC:0:0 | AS:0:0 | AH:0:0 | AR:0:0
+Servo: LR Tibia(11) | Pos:0 | O:0:0 | G:0:0 | EMC:0 | FPC:0:0 | AS:0:0 | AH:0:0 | AR:0:0
+Servo: LM Tibia(17) | Pos:0 | O:0:0 | G:0:0 | EMC:0 | FPC:0:0 | AS:0:0 | AH:0:0 | AR:0:0
+Servo: LF Tibia(5) | Pos:0 | O:0:0 | G:0:0 | EMC:0 | FPC:0:0 | AS:0:0 | AH:0:0 | AR:0:0
 
+ The Goal is to align the top two servo pivots (Coxa and Femur) to be parallel to ground
+ And the Tibia should be at a right angle to the ground
+
+ Enter $-Exit, +- changes, *-change servo
+    0-n Chooses a leg, C-Coxa, F-Femur, T-Tibia
+    m - manually move mode to get close
+ Servo: RR Coxa(8)
+  
+  
 ## Joystick Commands
 
 Command | Description
