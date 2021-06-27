@@ -23,9 +23,10 @@
 #define USEJOYSTICK		// Use T3.6 or T4.x USB Host control
 //#define BLUETOOTH
 //#define USELSSCONFIG
+//#define RESET_LSS_SERVO_SETTINGS // turn this on if you want to reset servo settings...
 
 #define LSS_SERIAL_PORT     Serial1
-#define LSS_BAUD            250000
+#define LSS_BAUD            500000
 // Global defines to control which configuration we are using.  Note: Only define one of these...
 // 
 // Which type of control(s) do you want to compile in
@@ -113,7 +114,7 @@ extern ST7789_t3 tft;
 // Define 0 position servo offsets
 //===================================================================
 // Zenta LSS:
-
+/*
 #define cRRCoxaOff	0
 #define cRMCoxaOff	0
 #define cRFCoxaOff  0 
@@ -134,7 +135,7 @@ extern ST7789_t3 tft;
 #define cLRTibiaOff -162 
 #define cLMTibiaOff -180 
 #define cLFTibiaOff -168
-/*
+*/
 // MJS LSS:
 #define cRRCoxaOff	0
 #define cRMCoxaOff	0
@@ -156,7 +157,7 @@ extern ST7789_t3 tft;
 #define cLRTibiaOff -137 
 #define cLMTibiaOff -137 
 #define cLFTibiaOff -137
-*/
+
 
 //===================================================================
 // Define Servo Gyre (left side CCW, Right side CW)
@@ -441,7 +442,7 @@ leg_info_t legs[] = {
 #define cHexInitXZ   145 //Zenta 145 //131
 #define CHexInitXZCos60  81    // COS(56) = .559
 #define CHexInitXZSin60  120    // sin(56) = .829
-#define CHexInitY  14 //Zenta About 14mm is correct //116 //30
+#define CHexInitY  28 //Zenta About 14mm is correct //116 //30
 
 
 // Lets try some multi leg positions depending on height settings.
