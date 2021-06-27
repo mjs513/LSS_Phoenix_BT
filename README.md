@@ -21,6 +21,7 @@ C | clear Servo Offsets
 
 Command | Description
 ------------ | -------------
+PS | Power On/Off
 Cross | Joystick Debug
 Up Arrow | Stand/Start Position
 Dwn Arrow | Sit Position
@@ -41,3 +42,8 @@ Triangle | Motion Select
 ... | Walk
 Circle | Walkmode 1 (Auto)
 ... | Circle | Walkmode 0 (Manual Control)
+L1 | Leg Controls
+... | Ry - Up/Dwn
+... | Rx - Speed Up/Dwn
+--- | Lx/Ly  manually adjust the initial leg positions
+
