@@ -256,7 +256,7 @@ public:
 
   word GetBatteryVoltage(void);
 
-  void setGaitConfig();  //kludge MJS
+  void checkAndInitServosConfig(bool force_defaults=false);  //kludge MJS
 
   void            BeginServoUpdate(void);    // Start the update 
 #ifdef c4DOF
@@ -287,10 +287,16 @@ public:
   // added stuff for bioloid like pose support to bypass servo
   //    firmware support for timed moves
   //=====================================================================
-  enum {MAX_MOVE_SERVOS = 20, DEFAULT_FRAMES_PER_SECOND = 50, DEFAULT_MIN_NOT_WAIT_TIME = 1000};
+  enum {MAX_MOVE_SERVOS = 20, 
+    DEFAULT_FRAMES_PER_SECOND = 80,
+    MAX_FPS = 80, 
+    OUTPUT_SAME_POS_COUNT = 3,
+    DEFAULT_MIN_NOT_WAIT_TIME = 4000
+  };
 
   typedef struct {
     uint8_t id;   // id of servo
+    uint8_t pos_repeated_count;
     int16_t target_pos; // our target position
     int16_t starting_pos; // our target position
     float   pos;        // our current working position
@@ -307,7 +313,7 @@ public:
   uint32_t      tmCyclesLeft = 0;
   uint8_t       tmServoCount = 0;
   bool          tmSetupServos = true;
-  bool          use_servos_timed_moves = false;
+  bool          use_servos_moveT = false;
   bool          servo_debug = false;
 
   // functions for
@@ -318,8 +324,13 @@ public:
   void TMSetTargetByIndex(uint8_t index, int16_t target);
   void TMSetupMove(uint32_t move_time);
   int  TMStep(bool wait = true);
+  void TMTimedMove(uint32_t move_time);
   void TMPrintDebugInfo();
   void TMConfigureServos();
+
+  // helper functions...
+  void MakeSureServosAreOn(void);
+  void FindServoOffsets();
 
 
 
