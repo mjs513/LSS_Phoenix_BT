@@ -33,3 +33,11 @@ Options | Gait Select
 ... | Wave 24
 ... | Tripod 6
 ... |  Ripple 12
+Squate | Balance Mode On/Off
+Triangle | Motion Select
+... | Translate
+... | Rotate
+... | Single
+... | Walk
+Circle | Walkmode 1 (Auto)
+... | Circle | Walkmode 0 (Manual Control)
