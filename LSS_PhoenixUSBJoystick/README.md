@@ -17,42 +17,39 @@ S | Track Servos
 O | Enter Servo offset mode
 C | clear Servo Offsets
   
-## Servo Offset Mode
-After 'O' command is enter you will see on the screen a brief description and the current settings for the servos and the sub menu:
+### Servo Offset Mode
   
- Update Servos Offsets and their rotation direction(Gyre)
- Current Servo Information
-  
-Servo |  Position | Offset | Gyre | EM | Filter | Ang. Stiffness | Ang Hold Stiffness | Ang Range
------------- | ------------- | ------------ | ------------- | ------------ | ------------- | ------------ | ------------- | ------------ 
-Servo: RR Coxa(8) | Pos:0 | O:0:0 | G:0:0 | EMC:0 | FPC:0:0 | AS:0:0 | AH:0:0 | AR:0:0
-Servo: RM Coxa(14) | Pos:0 | O:0:0 | G:0:0 | EMC:0 | FPC:0:0 | AS:0:0 | AH:0:0 | AR:0:0
-Servo: RF Coxa(2) | Pos:0 | O:0:0 | G:0:0 | EMC:0 | FPC:0:0 | AS:0:0 | AH:0:0 | AR:0:0
-Servo: LR Coxa(7) | Pos:0 | O:0:0 | G:0:0 | EMC:0 | FPC:0:0 | AS:0:0 | AH:0:0 | AR:0:0
-Servo: LM Coxa(13) | Pos:0 | O:0:0 | G:0:0 | EMC:0 | FPC:0:0 | AS:0:0 | AH:0:0 | AR:0:0
-Servo: LF Coxa(1) | Pos:0 | O:0:0 | G:0:0 | EMC:0 | FPC:0:0 | AS:0:0 | AH:0:0 | AR:0:0
-Servo: RR Femur(10) | Pos:0 | O:0:0 | G:0:0 | EMC:0 | FPC:0:0 | AS:0:0 | AH:0:0 | AR:0:0
-Servo: RM Femur(16) | Pos:0 | O:0:0 | G:0:0 | EMC:0 | FPC:0:0 | AS:0:0 | AH:0:0 | AR:0:0
-Servo: RF Femur(4) | Pos:0 | O:0:0 | G:0:0 | EMC:0 | FPC:0:0 | AS:0:0 | AH:0:0 | AR:0:0
-Servo: LR Femur(9) | Pos:0 | O:0:0 | G:0:0 | EMC:0 | FPC:0:0 | AS:0:0 | AH:0:0 | AR:0:0
-Servo: LM Femur(15) | Pos:0 | O:0:0 | G:0:0 | EMC:0 | FPC:0:0 | AS:0:0 | AH:0:0 | AR:0:0
-Servo: LF Femur(3) | Pos:0 | O:0:0 | G:0:0 | EMC:0 | FPC:0:0 | AS:0:0 | AH:0:0 | AR:0:0
-Servo: RR Tibia(12) | Pos:0 | O:0:0 | G:0:0 | EMC:0 | FPC:0:0 | AS:0:0 | AH:0:0 | AR:0:0
-Servo: RM Tibia(18) | Pos:0 | O:0:0 | G:0:0 | EMC:0 | FPC:0:0 | AS:0:0 | AH:0:0 | AR:0:0
-Servo: RF Tibia(6) | Pos:0 | O:0:0 | G:0:0 | EMC:0 | FPC:0:0 | AS:0:0 | AH:0:0 | AR:0:0
-Servo: LR Tibia(11) | Pos:0 | O:0:0 | G:0:0 | EMC:0 | FPC:0:0 | AS:0:0 | AH:0:0 | AR:0:0
-Servo: LM Tibia(17) | Pos:0 | O:0:0 | G:0:0 | EMC:0 | FPC:0:0 | AS:0:0 | AH:0:0 | AR:0:0
-Servo: LF Tibia(5) | Pos:0 | O:0:0 | G:0:0 | EMC:0 | FPC:0:0 | AS:0:0 | AH:0:0 | AR:0:0
+The servo offset mode, allows you to properly setup the 
+servo Offsets as well as the Gyre (rotation direction)
 
- The Goal is to align the top two servo pivots (Coxa and Femur) to be parallel to ground
- And the Tibia should be at a right angle to the ground
+It will initially print out current settings as well as
+several other servo settings.  It currently then outputs:
+The Goal is to align the top two servo pivots (Coxa and Femur) to be parallel to ground
+And the Tibia should be at a right angle to the ground
 
- Enter $-Exit, +- changes, *-change servo
+Enter $-Exit, +- changes, *-change servo
     0-n Chooses a leg, C-Coxa, F-Femur, T-Tibia
     m - manually move mode to get close
- Servo: RR Coxa(8)
-  
- NOTE: The numbering is based on the index for the coxa, femur, and tiberia.  For example if you want to change the RF Femur you would enter 'F 2' since its the 3 servo in the femur list and the indexing starts at 0
+
+Manual mode was added to hopefully make it easier for you to setup the offsets 
+regardless of how you aligned your servos during assembly.  You should set the
+hexapod up on some form of stand, and enter this mode, and rougly try to set the
+legs like mentioned above (Parallel and right angles).  Once you are close, enter
+any keys to get back to normal align mode. 
+
+In normal mode, when a new servo is selected, it will wiggle that servo and turn
+the led to green, you can use the + and - keyboard keys to adjust a little. If
+you adjust a servo I turn the LED red.  
+
+You can select different Servos, by cycle through them with either the * key or
+just <LF> without anything else on line.  You can also select a leg to move to
+by typing in 0-5.  You can also jump to a specific servo on a leg with the C,F or T
+keys.
+
+Once you are done making changes, type a $ to exit.  At this point you have the option
+to save or not save... I also added an ability to choose servo by servo...
+If you save anything, I would probably suggest that you completely power it off and
+back on, including rebooting... And hopefully the new updated offsets will work.
   
 #### Joystick Commands
 
