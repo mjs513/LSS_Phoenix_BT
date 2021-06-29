@@ -442,7 +442,7 @@ leg_info_t legs[] = {
 #define cHexInitXZ   145 //Zenta 145 //131
 #define CHexInitXZCos60  81    // COS(56) = .559
 #define CHexInitXZSin60  120    // sin(56) = .829
-#define CHexInitY  28 //Zenta About 14mm is correct //116 //30
+#define CHexInitY  14 //Zenta About 14mm is correct //116 //30
 
 
 // Lets try some multi leg positions depending on height settings.
