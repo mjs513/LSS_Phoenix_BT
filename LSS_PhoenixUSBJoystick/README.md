@@ -106,6 +106,8 @@ Command | Description
 ------------ | -------------
 Select | Left or right front leg
   
+  ![leg-body orientation](https://github.com/mjs513/LSS_Phoenix_BT/blob/main/LSS_PhoenixUSBJoystick/images/Leg-axis-orientation.png)
+  
   ### Walk Motion
 Command | Description
 ------------ | -------------
@@ -118,7 +120,7 @@ Options | Gait Select
 ... |  Ripple 12
 R2 | Double Leg Lift
 Circle | Walkmode 1 (Auto)
-... | Circle | Walkmode 0 (Manual Control)
+... | Circle (toggle) Walkmode 0 (Manual Control)
 
   ### Rotate Motion
 Command | Description
