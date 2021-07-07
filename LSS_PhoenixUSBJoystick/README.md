@@ -54,6 +54,28 @@ to save or not save... I also added an ability to choose servo by servo...
 If you save anything, I would probably suggest that you completely power it off and
 back on, including rebooting... And hopefully the new updated offsets will work.
   
+##### Further instructions for Offset Mode
+  
+Here is a snapshot showing the Arduino Monitor:
+
+  image
+
+Note the area at the top of the window, that at the right hand side has the Send button. The area to the left of it is an area you should be able to click with the mouse to give it the text cursor, and you should be able to type stuff in. The stuff will be sent when ever you press the CR(Enter Key) or if you click on the send button.
+
+Notice near the bottom right of the window There is a button, to clear window and a drop down list for what type of line ending to send to the Arduino sketch when you type / press the enter key. I normally set it to both New Line and CR…
+
+Here I typed: om
+And it went into Servo Offset mode in manual mode… As I think you mentioned your servos may error out if it tries to set all servos to 0…
+
+  image
+  
+Hopefully you can then manually move the servos all to have sort of horizontal for the two servos and right angle for the leg…
+Once you are close you should be able to press any key (and send it)… Which will then exit manual mode and then you should be able to start fine tunining.
+
+Note: When is servo is selected and wiggles and led changes color… You can use + and - keys to move a small amount at a time.
+So I will check which direction I need to go by maybe typeing: ++
+and if moved the right direction depending on how close I am, I will maybe enter several +s or -s before I send them 
+  
 #### Joystick Commands
 
 Command | Description
