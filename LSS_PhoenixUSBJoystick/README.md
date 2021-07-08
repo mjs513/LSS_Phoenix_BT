@@ -101,13 +101,15 @@ L1 | Leg Controls
 R1 | Hold Single leg in place when Single leg selected
 
 ### Available Commands in Certain Motions Selected
+
+  Leg-Body Axes Schematic
+  ![leg-body orientation](https://github.com/mjs513/LSS_Phoenix_BT/blob/main/LSS_PhoenixUSBJoystick/images/Leg-axis-orientation.png)
+
   ### Single Leg Motion 
 Command | Description
 ------------ | -------------
 Select | Left or right front leg
-  
-  ![leg-body orientation](https://github.com/mjs513/LSS_Phoenix_BT/blob/main/LSS_PhoenixUSBJoystick/images/Leg-axis-orientation.png)
-  
+    
   ### Walk Motion
 Command | Description
 ------------ | -------------
@@ -161,5 +163,10 @@ Note: I have also cheated in the past and simply paired a PS4 with a BT dongle o
 
 With PS3 it is even easier… You can use the normal BT build… Then you need to plug in the BT dongle and make sure it starts up, and either remove it or if using hub, plug in the PS3 wired… Hopefully code will have remembered the BT address. Once the joystick has started up wired, I believe you hold down either the L1 or R1 buttons and the PS3 button and it will tell the PS3 to update itself for that BT object… After that simply unplug it, plug back in the BT dongle and press the PS3 button to connect up…
   
-For list of known working dongles post #1 (https://forum.pjrc.com/threads/49358-T3-6-USB-Host-Bluetooth) in USBHost_t36 PJRC Forum thread: 
+For list of known working dongles post #1 (https://forum.pjrc.com/threads/49358-T3-6-USB-Host-Bluetooth) in USBHost_t36 PJRC Forum thread.
+  
+To give you an idea of how the controller works with the hexapod the attached video is provided.  Forwarned it does use a differnt controller:
+  
+  ![demo](https://www.youtube.com/watch?v=9IY9sHToaqM)
+ 
 
