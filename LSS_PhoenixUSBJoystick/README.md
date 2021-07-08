@@ -167,7 +167,7 @@ For list of known working dongles post #1 (https://forum.pjrc.com/threads/49358-
   
 To give you an idea of how the controller works with the hexapod the attached video is provided.  Forwarned it does use a differnt controller:
   
-[![Demo](https://img.youtube.com/vi/VIDEO-ID/9IY9sHToaqM.jpg)](https://www.youtube.com/watch?v=9IY9sHToaqM)
+[![Demo](https://github.com/mjs513/LSS_Phoenix_BT/blob/main/LSS_PhoenixUSBJoystick/images/Capture.PNG)](https://www.youtube.com/watch?v=9IY9sHToaqM)
   
 
  
